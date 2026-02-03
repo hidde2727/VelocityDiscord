@@ -9,7 +9,6 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -17,9 +16,6 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 import org.hidde2727.VelocityDiscordPlugin.Discord.Discord;
 import org.hidde2727.VelocityDiscordPlugin.Features.*;
 
@@ -30,6 +26,8 @@ public class VelocityDiscordPlugin {
     public VelocityDiscordPlugin(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
         this.logger = logger;
+        this.dataDirectory = dataDirectory;
+        Logs.logger = logger;
 
         // Create the config directory
         try {
@@ -52,47 +50,58 @@ public class VelocityDiscordPlugin {
                 return;
             }
         }
-        // Load the config
-        Yaml yaml = new Yaml(new Constructor(Config.class, new LoaderOptions()));
-        try {
-            config = (Config) yaml.load(new FileInputStream(configFile));
-        } catch(Exception exc) {
-            this.logger.warn("Failed to parse the config file");
-            this.logger.warn(exc.getMessage());
-            return;
-        }
-
+        this.config = Config.Load(configFile);
+        this.dataStorage = DataStorage.Load(dataDirectory.resolve("data.yml").toFile());
         discord = new Discord(config.botToken, ResourceBundle.getBundle("messages"));
 
         // Add all the features
-        this.onStart = new OnStart(discord, config.events.onStart, logger);
-        this.onStop = new OnStop(discord, config.events.onStop, logger);
-        this.onJoin = new OnJoin(discord, config.events.onJoin, logger);
-        this.onLeave = new OnLeave(discord, config.events.onLeave, logger);
-        this.onMessage = new OnMessage(discord, config.events.onMessage, logger);
+        this.onStart = new OnStart(discord, config.events.onStart);
+        this.onStop = new OnStop(discord, config.events.onStop);
+        this.onJoin = new OnJoin(discord, config.events.onJoin);
+        this.onLeave = new OnLeave(discord, config.events.onLeave);
+        this.onMessage = new OnMessage(discord, config.events.onMessage);
+        this.whitelist = new Whitelist(discord, config.whitelist, dataStorage.whitelist);
     }
 
-    @Subscribe
+    @Subscribe(priority = 0)
     public void onInitialize(ProxyInitializeEvent event) {
         this.onStart.onInitialize(event);
-        server.getEventManager().register(this, this.onStop);
         server.getEventManager().register(this, this.onJoin);
         server.getEventManager().register(this, this.onLeave);
         server.getEventManager().register(this, this.onMessage);
+        discord.AddEventListener(onMessage);
+        this.whitelist.onInitialize(event);
+        server.getEventManager().register(this, this.whitelist);
+        discord.AddEventListener(whitelist);
+
     }
     @Subscribe
     public void onShutdown(ProxyShutdownEvent event) {
+        onStop.OnShutdown(event);
         discord.Shutdown();
+
+        File dataFile = dataDirectory.resolve("data.yml").toFile();
+        if(!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+            } catch(Exception ignored) {
+                this.logger.warn("Failed to create the data file");
+            }
+        }
+        dataStorage.Unload(dataDirectory.resolve("data.yml").toFile());
     }
 
     private final ProxyServer server;
     private final Logger logger;
     private Config config = new Config();
+    private DataStorage dataStorage = new DataStorage();
     private Discord discord;
+    private Path dataDirectory;
     // Features:
     OnStart onStart;
     OnStop onStop;
     OnJoin onJoin;
     OnLeave onLeave;
     OnMessage onMessage;
+    Whitelist whitelist;
 }

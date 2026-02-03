@@ -19,14 +19,6 @@ dependencies {
     implementation("net.dv8tion:JDA:6.3.0")
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs("src/main/resources")
-        }
-    }
-}
-
 java {
     sourceCompatibility = "21"
     targetCompatibility = "21"

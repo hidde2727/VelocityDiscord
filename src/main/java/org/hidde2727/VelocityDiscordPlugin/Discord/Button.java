@@ -4,7 +4,6 @@ import org.hidde2727.VelocityDiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class Button implements ActionRowItem {
     String id;
@@ -32,12 +31,15 @@ public class Button implements ActionRowItem {
         return new Button(url, localizationKey, ButtonStyle.LINK);
     }
 
+    public String GetLabel(StringProcessor processor, String namespace, int maxSearchDepth) {
+        return processor.GetString(localizationKey + ".label", namespace, maxSearchDepth);
+    }
     public ActionRowChildComponent Build(StringProcessor processor, String namespace, int maxSearchDepth) {
         return net.dv8tion.jda.api.components.buttons.Button.of(
             style,
             id,
             processor.GetString(localizationKey + ".label", namespace, maxSearchDepth),
-            Emoji.fromFormatted(processor.GetString(localizationKey + ".emoji", namespace, maxSearchDepth))
+            processor.GetEmoji(localizationKey + ".emoji", namespace, maxSearchDepth)
         );
     }
 }

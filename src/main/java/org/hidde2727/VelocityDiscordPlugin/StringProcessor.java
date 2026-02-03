@@ -7,6 +7,8 @@ import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+
 public class StringProcessor implements Cloneable {
     private SortedMap<Integer, VariableMap> variables = new TreeMap<>();
     private ResourceBundle localization;
@@ -184,6 +186,14 @@ public class StringProcessor implements Cloneable {
                 b = Integer.parseInt(colString.substring(secondSpace+1));
                 return new Color(r,g,b);
             }
+        } catch(Exception ignored) {}
+        return null;
+    }
+
+    public Emoji GetEmoji(String key, String namespace, int maxSearchDepth) {
+        String str = GetString(key, namespace, maxSearchDepth);
+        try {
+            return Emoji.fromFormatted(str);
         } catch(Exception ignored) {}
         return null;
     }

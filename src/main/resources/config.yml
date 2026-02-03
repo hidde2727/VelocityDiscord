@@ -28,6 +28,12 @@ events:
 # Whistlisting via discord
 whitelist:
   enabled: true
+  onAccept:
+    enabled: true
+    channel: "id..."
+  onDeny:
+    enabled: true
+    channel: "id..."
   request:
     enabled: true
     channel: "id..."

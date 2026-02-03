@@ -1,6 +1,5 @@
 package org.hidde2727.VelocityDiscordPlugin.Discord;
 
-import java.util.List;
 import java.util.Map;
 
 import org.hidde2727.VelocityDiscordPlugin.StringProcessor;
@@ -19,34 +18,38 @@ public class SelectMenu implements ActionRowItem {
         Custom
     };
     String id;
+    String localizationKey;
     Type type;
     Map<String, String> optionIds;
 
-    SelectMenu(String id, Type type, Map<String, String> optionIds) {
+    SelectMenu(String id, String localizationKey, Type type, Map<String, String> optionIds) {
         this.id = id;
         this.type = type;
         this.optionIds = optionIds;
     }
-    SelectMenu(String id, Type type) {
-        this(id, type, null);
+    SelectMenu(String id, String localizationKey, Type type) {
+        this(id, localizationKey, type, null);
     }
 
-    public static SelectMenu Users(String id) {
-        return new SelectMenu(id, Type.User);
+    public static SelectMenu Users(String id, String localizationKey) {
+        return new SelectMenu(id, localizationKey, Type.User);
     }
-    public static SelectMenu Channels(String id) {
-        return new SelectMenu(id, Type.Channel);
+    public static SelectMenu Channels(String id, String localizationKey) {
+        return new SelectMenu(id, localizationKey, Type.Channel);
 
     }
-    public static SelectMenu Roles(String id) {
-        return new SelectMenu(id, Type.Role);
+    public static SelectMenu Roles(String id, String localizationKey) {
+        return new SelectMenu(id, localizationKey, Type.Role);
 
     }
-    public static SelectMenu Custom(String id, Map<String, String> optionIds) {
-        return new SelectMenu(id, Type.Custom, optionIds);
+    public static SelectMenu Custom(String id, String localizationKey, Map<String, String> optionIds) {
+        return new SelectMenu(id, localizationKey, Type.Custom, optionIds);
 
     }
 
+    public String GetLabel(StringProcessor processor, String namespace, int maxSearchDepth) {
+        return processor.GetString(localizationKey + ".label", namespace, maxSearchDepth);
+    }
     public ActionRowChildComponent Build(StringProcessor processor, String namespace, int maxSearchDepth) {
         if(type == Type.User) {
             return EntitySelectMenu.create(id, SelectTarget.USER).build();
@@ -59,12 +62,12 @@ public class SelectMenu implements ActionRowItem {
             for(Map.Entry<String, String> entry : optionIds.entrySet()) {
                 menu.addOption(
                     entry.getKey(),
-                    processor.GetString(id + ".option." + entry.getValue() + ".label", namespace, maxSearchDepth),
-                    processor.GetString(id + ".option." + entry.getValue() + ".description", namespace, maxSearchDepth),
-                    Emoji.fromFormatted(processor.GetString(id + ".option." + entry.getValue() + ".emoji", namespace, maxSearchDepth))
+                    processor.GetString(localizationKey + ".option." + entry.getValue() + ".label", namespace, maxSearchDepth),
+                    processor.GetString(localizationKey + ".option." + entry.getValue() + ".description", namespace, maxSearchDepth),
+                    Emoji.fromFormatted(processor.GetString(localizationKey + ".option." + entry.getValue() + ".emoji", namespace, maxSearchDepth))
                 );
             }
-            return menu.build();
+            return menu.setRequired(true).build();
         }
         return null;
     }
