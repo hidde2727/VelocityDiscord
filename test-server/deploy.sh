@@ -2,5 +2,5 @@
 
 cd test-server
 ./end.sh
-cp ../build/libs/velocity-discord-all.jar plugins/velocity-discord.jar
+cp ../velocity/build/libs/velocity-all.jar plugins/velocity-discord.jar
 ./start.sh

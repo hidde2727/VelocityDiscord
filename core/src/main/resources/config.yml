@@ -1,0 +1,76 @@
+# !This file must be setup before using this plugin!
+# Once a feature is enabled, disabling it again results in undefined behavior
+# If you really want to disable a feature, but this wrecks your whitelist/install, you should delete the data.yml file
+
+botToken:   "balblabla"
+
+# Discord messages for in game events
+events:
+  onStart:
+    enabled: false
+    channel: "id..."
+    
+  onStop:
+    enabled: false
+    channel: "id..."
+
+  onJoin:
+    enabled: false
+    channel: "id..."
+
+  onLeave:
+    enabled: false
+    channel: "id..."
+
+  onMessage:
+    enabled: false
+    forwardCommands: false
+    channels:
+      server1: "id..."
+      server2: "id..."
+
+
+# If enabled, will use the UUID registered at mojang for verification
+# !Will force the server into online mode!
+useUUID: true
+# If enabled only one minecraft account is allowed per discord user
+connectAccounts: true
+# Whistlisting via discord
+
+whitelist:
+  enabled: false
+  onAccept:
+    enabled: true
+    channel: "id..."
+  onDeny:
+    enabled: true
+    channel: "id..."
+  request:
+    enabled: true
+    channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+  voting:
+    # If disabled, a request will imply immediate whitelist
+    enabled: true
+    channel: "id.."
+    checkRoles: false
+    allowedRoles: []
+    acceptVotes: "50%"
+    denyVotes: "1"
+
+# Banning via discord
+banning:
+  enabled: false
+  request:
+    enabled: true
+    channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+  voting:
+    enabled: true
+    channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+    acceptVotes: "50%"
+    denyVotes: "1"

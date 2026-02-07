@@ -1,4 +1,4 @@
 #!/bin/bash
 
-gradle shadowJar
+gradle :velocity:shadowJar
 ./test-server/deploy.sh

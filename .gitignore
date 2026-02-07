@@ -13,3 +13,8 @@ test-server/*
 !test-server/end.sh
 !test-server/deploy.sh
 test-server-2
+run
+
+.idea
+
+*.hprof
