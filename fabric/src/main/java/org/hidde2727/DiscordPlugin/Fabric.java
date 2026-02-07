@@ -8,7 +8,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedPlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.hidde2727.DiscordPlugin.Implementation.ActiveImplementation;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
