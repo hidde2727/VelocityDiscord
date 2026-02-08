@@ -1,8 +1,8 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version "${shadow_version}"
+    id "com.modrinth.minotaur" version "${modrinth_minotaur_version}"
     id("net.fabricmc.fabric-loom-remap") version "1.14-SNAPSHOT"
-
-    id("com.gradleup.shadow") version "8.3.1"
 }
 
 repositories {
@@ -71,4 +71,14 @@ java {
 
     // Fabric loom:
     withSourcesJar()
+}
+
+modrinth {
+    token = "${rootProject.ext.modrinth_token}"
+    projectId = "${rootProject.ext.modrinth_id}"
+    versionNumber = "${version}"
+    versionName = "Fabric - ${version}"
+    uploadFile = remapJar
+    gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
+    loaders = ['fabric']
 }

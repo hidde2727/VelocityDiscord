@@ -32,3 +32,6 @@ fabric/run
 
 # Big files
 *.hprof
+
+# Secrets
+secrets.properties

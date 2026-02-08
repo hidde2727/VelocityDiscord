@@ -1,4 +1,5 @@
 ## Features
+- Works on both Velocity proxies and Fabric servers
 - Highly configurable (see [config.yaml](/core/src/main/resources/config.yml) and [messages.properties](/core/src/main/resources/messages.properties) for all the things you can mess with)
 - Custom discord messages on server start and stop
 - Custom discord messages when players connect and disconnect
@@ -6,11 +7,16 @@
 - Custom minecraft messages when user message on discord
 - Whitelisting feature to people make whitelist requests via discord
 
+
+
+## Download
+Go to [modrinth.com](https://modrinth.com/plugin/discord-server) to download this mod
+
 ## Setup
 See [discord.com/developers/docs/quick-start/getting-started](https://discord.com/developers/docs/quick-start/getting-started) for more information.
 
 1. Start your (fabric, or velocity) server, and stop it again
-2. The server will generate either a mods or a plugin folder, put the jar file corresponding to your server type in that folder
+2. The server will generate either a mods or a plugin folder, put the jar file corresponding to your server type in that folder (Go to [modrinth.com](https://modrinth.com/plugin/discord-server) to download)
 3. Start your server again, this mod will generate a config.yml file for you, open it (the following steps will guide you through configuring it)
 4. Go to the discord development portal [discord.com/developers/applications](https://discord.com/developers/applications)
 5. Click on "New application"
@@ -31,5 +37,5 @@ Now we want to setup the features, you can use the following tutorial to get a c
 [support.discord.com](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID)
 You can then copy your channel IDs to the features you want to enable in the config (!disable a feature if you do not want to use it!)
 
-## Support
-If something doesn't work, please open an issue on github ([github.com](https://github.com/hidde2727/VelocityDiscord/issues)) or send an email to 93196280+hidde2727@users.noreply.github.com
+## Bugs
+If you find bugs or weird behavior, please open an issue on github ([github.com](https://github.com/hidde2727/VelocityDiscord/issues)) or send an email to 93196280+hidde2727@users.noreply.github.com

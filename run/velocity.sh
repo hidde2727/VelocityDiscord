@@ -5,7 +5,7 @@ WORKING_DIR=${WORKING_DIR:-/}
 if [ $WORKING_DIR == "run" ]; then
     cd ../;
 fi
-gradle :velocity:shadowJar
+gradle :velocity:build
 
 cd ./run
 ./velocity/stop.sh

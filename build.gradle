@@ -1,0 +1,20 @@
+// Global secrets
+def loadSecretProps(String filename) {
+    def propsFile = file(filename)
+    if (!propsFile.exists()) {
+        logger.lifecycle("Secrets file '${filename}' not found, skipping.")
+        return [:]
+    }
+
+    def props = new Properties()
+    propsFile.withInputStream { stream ->
+        props.load(stream)
+    }
+
+    props.each { key, value ->
+        ext[key] = value
+    }
+
+    return props
+}
+loadSecretProps("secrets.properties")
