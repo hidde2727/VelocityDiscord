@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.JDA;

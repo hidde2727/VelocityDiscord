@@ -1,8 +1,8 @@
 # !This file must be setup before using this plugin!
-# Once a feature is enabled, disabling it again results in undefined behavior
+# Once a feature is enabled, disabling it again may result in undefined behavior
 # If you really want to disable a feature, but this wrecks your whitelist/install, you should delete the data.yml file
 
-botToken:   "balblabla"
+botToken:   "Insert your token here, see the README.md on how to get a token"
 
 # Discord messages for in game events
 events:
@@ -25,20 +25,37 @@ events:
   onMessage:
     enabled: false
     forwardCommands: false
-    channels:
-      server1: "id..."
-      server2: "id..."
+
+    # Uncomment the one that applies to your server type:
+
+    # For fabric:
+    # channels:
+    #   fabric: "id..."
+
+    # For velocity
+    # (The server names are the ones specified in the velocity.toml file you configured)
+    # channels:
+    #   server1: "id..."
+    #   server2: "id..."
 
 
 # If enabled, will use the UUID registered at mojang for verification
 # !Will force the server into online mode!
+# You currently cannot change this setting after you have someone whitelisted, so choose carefully
+# If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 useUUID: true
 # If enabled only one minecraft account is allowed per discord user
+# You currently cannot change this setting after you have someone whitelisted, so choose carefully
+# If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 connectAccounts: true
-# Whistlisting via discord
 
+# Whistlisting via discord
 whitelist:
   enabled: false
+
+  giveRoleOnWhitelist: false
+  whitelistedRole: ""
+
   onAccept:
     enabled: true
     channel: "id..."
@@ -68,6 +85,7 @@ banning:
     checkRoles: false
     allowedRoles: []
   voting:
+    # If disabled, a request will imply an immediate ban
     enabled: true
     channel: "id..."
     checkRoles: false

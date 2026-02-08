@@ -42,7 +42,7 @@ public class Fabric implements ModInitializer, Implementation {
     }
     public void OnPlayerMessage(SignedMessage message, ServerPlayerEntity player, MessageType.Parameters params) {
         plugin.OnPlayerMessage(
-                "Fabric-server",
+                "fabric",
                 player.getStringifiedName(),
                 player.getUuidAsString(),
                 message.getSignedContent()

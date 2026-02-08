@@ -8,13 +8,27 @@ build
 .kotlin
 
 bin
-test-server/*
-!test-server/start.sh
-!test-server/end.sh
-!test-server/deploy.sh
-test-server-2
-run
 
+# All the run directories
+fabric/run
+/run/*
+!fabric.sh
+!velocity.sh
+!/run/fabric
+!/run/velocity
+
+/run/fabric/*
+!start.sh
+!stop.sh
+!README.md
+/run/velocity/*
+!start.sh
+!stop.sh
+!README.md
+
+# IDE files
 .idea
+.vscode
 
+# Big files
 *.hprof
