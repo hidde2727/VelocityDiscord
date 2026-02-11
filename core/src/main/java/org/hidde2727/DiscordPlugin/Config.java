@@ -48,7 +48,8 @@ public class Config {
         }
         public static class OnMessage {
             public boolean enabled = false;
-            public boolean forwardCommands = false;
+            public boolean minecraftToDiscord = true;
+            public boolean discordToMinecraft = true;
             public Map<String, String> channels = new HashMap<>();
         }
         public OnStart onStart = new OnStart();
@@ -82,6 +83,8 @@ public class Config {
             public String denyVotes = "1";
         }
         public boolean enabled = false;
+        public boolean giveRoleOnWhitelist = false;
+        public String whitelistedRoleID = "";
         public OnAccept onAccept = new OnAccept();
         public OnDeny onDeny = new OnDeny();
         public Request request = new Request();

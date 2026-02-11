@@ -44,13 +44,14 @@ shadowJar {
     exclude(group="org.slf4j")
     exclude(group="oshi")
     exclude(group="com.sun.jna")
+
+    archiveVersion = ""
 }
 tasks.remapJar {
     dependsOn shadowJar
     inputFile.set(shadowJar.archiveFile)
 }
 build.dependsOn remapJar
-
 
 processResources {
     inputs.property "version", project.version
@@ -77,7 +78,8 @@ modrinth {
     token = "${rootProject.ext.modrinth_token}"
     projectId = "${rootProject.ext.modrinth_id}"
     versionNumber = "${version}"
-    versionName = "Fabric - ${version}"
+    versionName = "Discordio - Fabric - ${version}"
+    versionType = "${modrinth_version_type}"
     uploadFile = remapJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['fabric']

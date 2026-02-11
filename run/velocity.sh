@@ -17,7 +17,10 @@ cp ../velocity/build/libs/velocity-all.jar ./velocity/plugins/velocity-discord.j
 mv ./fabric/mods/FabricProxy-Lite.jar.disabled ./fabric/mods/FabricProxy-Lite.jar
 rm ./fabric/mods/fabric-discord.jar
 
-./fabric/start.sh &
+# Remove the message.properties for easier testing
+rm ./velocity/plugins/discordio/messages.properties
+
+nohup ./fabric/start.sh &
 ./velocity/start.sh
 
 echo "Shutting the fabric server down"

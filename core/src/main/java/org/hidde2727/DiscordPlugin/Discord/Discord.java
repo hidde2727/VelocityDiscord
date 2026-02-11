@@ -1,17 +1,13 @@
 package org.hidde2727.DiscordPlugin.Discord;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -20,9 +16,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Discord {
     JDA jda;
-    // String replacement variables:
-    private StringProcessor.VariableMap globalVariables = new StringProcessor.VariableMap();
-    StringProcessor stringProcessor;
+    final StringProcessor stringProcessor;
     public static class MessageID {
         public MessageID(String channelId, long messageId) {
             this.channelId = channelId;
@@ -33,29 +27,18 @@ public class Discord {
     };
     List<MessageID> toDelete = new ArrayList<>();
 
-    public Discord(String botToken, ResourceBundle localization) throws Exception {
+    public Discord(String botToken, StringProcessor processor) throws Exception {
         jda = JDABuilder.createDefault(botToken)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .build()
                 .awaitReady();
-        stringProcessor = new StringProcessor(globalVariables, localization);
-
-        globalVariables.AddFunction("CURRENT_DATE", () -> { return LocalDate.now().toString(); });
-        globalVariables.AddFunction("CURRENT_TIME", () -> { return LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
-        globalVariables.AddFunction("CURRENT_DATE_TIME", () -> { return LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
-        globalVariables.AddFunction("CURRENT_NANO_SECONDS", () -> { return String.valueOf(LocalDateTime.now().getNano()); });
-        globalVariables.AddFunction("CURRENT_SECOND", () -> { return String.valueOf(LocalDateTime.now().getSecond()); });
-        globalVariables.AddFunction("CURRENT_MINUTE", () -> { return String.valueOf(LocalDateTime.now().getMinute()); });
-        globalVariables.AddFunction("CURRENT_HOUR", () -> { return String.valueOf(LocalDateTime.now().getHour()); });
-        globalVariables.AddFunction("CURRENT_DAY", () -> { return String.valueOf(LocalDateTime.now().getDayOfMonth()); });
-        globalVariables.AddFunction("CURRENT_MONTH", () -> { return String.valueOf(LocalDateTime.now().getMonthValue()); });
-        globalVariables.AddFunction("CURRENT_YEAR", () -> { return String.valueOf(LocalDateTime.now().getYear()); });
+        this.stringProcessor = processor;
     }
 
     public void Shutdown() {
         // Delete all the messages marked to be deleted:
         for(MessageID messageId: toDelete) {
-            jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).queue();
+            jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).complete();
         }
         // Stop JDA
         jda.shutdown();
@@ -73,8 +56,19 @@ public class Discord {
         return jda.getTextChannelById(id).canTalk();
     }
 
+    public String GetSelfId() {
+        return jda.getSelfUser().getId();
+    }
+
     public User GetUserByID(String id) {
         return jda.retrieveUserById(id).complete();
+    }
+
+    public boolean GiveUserRole(Guild guild, String userId, String role) {
+        Role guildRole = guild.getRoleById(role);
+        if(guildRole == null) return false;
+        guild.addRoleToMember(guild.getMemberById(userId), guildRole).queue();
+        return true;
     }
 
     public List<Member> GetUsersInChannel(String channelID) {

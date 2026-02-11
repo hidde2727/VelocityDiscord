@@ -1,20 +1,20 @@
 package org.hidde2727.DiscordPlugin;
 
-import org.hidde2727.DiscordPlugin.Implementation.ActiveImplementation;
-
 public class Logs {
 
+    static DiscordPlugin useForLogging;
+
     public static void debug(String message) {
-        ActiveImplementation.active.debug(message);
+        useForLogging.implementation.debug(message);
     }
     public static void info(String message) {
-        ActiveImplementation.active.info(message);
+        useForLogging.implementation.info(message);
     }
     public static void warn(String message) {
-        ActiveImplementation.active.warn(message);
+        useForLogging.implementation.warn(message);
     }
     public static void error(String message) {
-        ActiveImplementation.active.error(message);
+        useForLogging.implementation.error(message);
     }
 
 }

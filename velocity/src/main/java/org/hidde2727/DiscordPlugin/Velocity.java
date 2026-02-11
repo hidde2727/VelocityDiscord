@@ -1,10 +1,10 @@
 package org.hidde2727.DiscordPlugin;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.Component;
-import org.hidde2727.DiscordPlugin.DiscordPlugin;
-import org.hidde2727.DiscordPlugin.Implementation.ActiveImplementation;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.slf4j.Logger;
 
@@ -22,7 +22,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.util.UuidUtils;
 
-@Plugin(id = "discord-velocity", name = "Velocity Discord", version = "3.5.0-SNAPSHOT",
+@Plugin(id = "discordio", name = "Discordio", version = "3.5.0-SNAPSHOT",
         url = "", description = "Discord management of your velocity proxy", authors = {"hidde2727"})
 public class Velocity implements Implementation {
     ProxyServer server;
@@ -36,8 +36,7 @@ public class Velocity implements Implementation {
         this.logger = logger;
         this.dataDirectory = dataDirectory;
 
-        ActiveImplementation.active = this;
-        plugin = new DiscordPlugin();
+        plugin = new DiscordPlugin(this);
     }
 
     @Subscribe
@@ -66,7 +65,7 @@ public class Velocity implements Implementation {
         );
         if(!letThrough) {
             event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
-                    Component.text("You are not whitelisted on this server")
+                Component.text("You are not whitelisted on this server")
             ));
         }
         // It is allowed, don't touch the event
@@ -106,5 +105,13 @@ public class Velocity implements Implementation {
     }
     public boolean IsOnlineMode() {
         return server.getConfiguration().isOnlineMode();
+    }
+    public void SendMessage(String serverID, String message) {
+        Optional<RegisteredServer> server = this.server.getServer(serverID);
+        if(server.isEmpty()) {
+            Logs.error("Cannot send a message to a server that is not register in the velocity.toml file");
+            return;
+        }
+        server.get().sendMessage(Component.text(message));
     }
 }

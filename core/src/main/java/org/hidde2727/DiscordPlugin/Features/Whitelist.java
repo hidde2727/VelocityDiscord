@@ -7,10 +7,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hidde2727.DiscordPlugin.Config;
-import org.hidde2727.DiscordPlugin.DataStorage;
-import org.hidde2727.DiscordPlugin.Logs;
-import org.hidde2727.DiscordPlugin.PlayerManager;
+import org.hidde2727.DiscordPlugin.*;
 import org.hidde2727.DiscordPlugin.DataStorage.Player;
 import org.hidde2727.DiscordPlugin.DataStorage.Request;
 import org.hidde2727.DiscordPlugin.Discord.ActionRow;
@@ -20,6 +17,7 @@ import org.hidde2727.DiscordPlugin.Discord.Embed;
 import org.hidde2727.DiscordPlugin.Discord.TextField;
 import org.json.JSONObject;
 
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -36,11 +34,11 @@ public class Whitelist extends ListenerAdapter {
 
     private final Map<String, String> awaitingConfirmation = new HashMap<>();// Discord user to minecraft username request
 
-    public Whitelist(Discord discord, Config.Whitelist config, DataStorage permanentData, PlayerManager players) {
-        this.discord = discord;
-        this.config = config;
-        this.permanentData = permanentData;
-        this.players = players;
+    public Whitelist(DiscordPlugin plugin) {
+        this.discord = plugin.discord;
+        this.config = plugin.config.whitelist;
+        this.permanentData = plugin.dataStorage;
+        this.players = plugin.players;
         
         if(!config.enabled) return;
         if(config.request.enabled && !discord.DoesTextChannelExist(config.request.channel)) {
@@ -66,6 +64,10 @@ public class Whitelist extends ListenerAdapter {
             this.config.enabled = false;
         }
     }
+
+    /***********************************************************************
+     * Util
+     ***********************************************************************/
 
     boolean HasRequest(String discordUUID) {
         for(Request request : permanentData.whitelistRequests.values()) {
@@ -129,6 +131,66 @@ public class Whitelist extends ListenerAdapter {
         }
         return Integer.parseInt(configStr);
     }
+    Map<String, String> GetVariables(User user) {
+        Map<String, String> variables = new HashMap<>();
+        variables.put("DISCORD_NAME", user.getName());
+        variables.put("DISCORD_GLOBAL_NAME", user.getGlobalName());
+        variables.put("DISCORD_EFFECTIVE_NAME", user.getEffectiveName());
+        variables.put("DISCORD_UUID", user.getId());
+        return variables;
+    }
+    Map<String, String> GetVariables(Request request) {
+        Map<String, String> variables = GetVariables(discord.GetUserByID(request.discordUUID));
+        variables.put("PLAYER_NAME", request.minecraftName);
+        variables.put("PLAYER_UUID", request.minecraftUUID);
+        variables.put("PLAYER_KEY", request.key);
+        variables.put("ACCEPT_VOTES", String.valueOf(request.upVotes.size()));
+        variables.put("DENY_VOTES", String.valueOf(request.downVotes.size()));
+        variables.put("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()));
+        variables.put("MIN_DENY_VOTES", String.valueOf(NeededDownvote()));
+        return variables;
+    }
+
+    /***********************************************************************
+     * General functions
+     ***********************************************************************/
+
+    boolean CheckWhitelistRequest(Request request, Guild guild) {
+        if(request.upVotes.size() >= NeededUpVotes()) {
+            // Accept the request
+            WhitelistPlayer(request, guild);
+            return true;
+        } else if(request.downVotes.size() >= NeededDownvote()) {
+            // Deny the request
+            DenyWhitelistPlayer(request);
+            return true;
+        }
+        return false;
+    }
+    Embed GetVotingMessage(Request request) {
+        return discord.CreateEmbed()
+                .SetLocalizationNamespace("embeds.whitelistVoting", 2)
+                .SetVariables(GetVariables(request))
+                .AddActionRow(new ActionRow(
+                        Button.Primary("whitelist-vote-up", "acceptButton"),
+                        Button.Destructive("whitelist-vote-down", "denyButton")
+                ))
+                .DeleteOnShutdown()
+                .OnSend((String channelID, Long messageID) -> {
+                    request.channelID = channelID;
+                    request.messageID = messageID;
+                });
+    }
+    void SendVotingNotAllowedEmbed(ButtonInteractionEvent event) {
+        discord.CreateEmbed()
+                .SetLocalizationNamespace("embeds.whitelistVotingNotAllowed", 2)
+                .SetVariables(GetVariables(event.getUser()))
+                .Send(event, true);
+    }
+
+    /***********************************************************************
+     * Whitelisting process
+     ***********************************************************************/
 
     // 1. Initial embed people can use to get whitelisted:
     void SendWhitelistRequestEmbed() {
@@ -146,10 +208,7 @@ public class Whitelist extends ListenerAdapter {
             // The user already has a request
             discord.CreateEmbed()
                 .SetLocalizationNamespace("embeds.alreadyWhitelisted", 2)
-                .SetVariable("DISCORD_NAME", event.getUser().getName())
-                .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-                .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-                .SetVariable("DISCORD_UUID", event.getUser().getId())
+                .SetVariables(GetVariables(event.getUser()))
                 .Send(event, true);
             return;
         }
@@ -157,19 +216,13 @@ public class Whitelist extends ListenerAdapter {
             // The user is not allowed to make a request
             discord.CreateEmbed()
                 .SetLocalizationNamespace("embeds.whitelistRequestNotAllowed", 2)
-                .SetVariable("DISCORD_NAME", event.getUser().getName())
-                .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-                .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-                .SetVariable("DISCORD_UUID", event.getUser().getId())
+                .SetVariables(GetVariables(event.getUser()))
                 .Send(event, true);
             return;
         }
         discord.CreateModal("whitelist-request")
             .SetLocalizationNamespace("modals.whitelistRequest", 2)
-            .SetVariable("DISCORD_NAME", event.getUser().getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-            .SetVariable("DISCORD_UUID", event.getUser().getId())
+            .SetVariables(GetVariables(event.getUser()))
             .Add(TextField.Short("username", "username", 3, 16))
             .Send(event);
 
@@ -181,10 +234,7 @@ public class Whitelist extends ListenerAdapter {
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.whitelistConfirm", 2)
             .SetVariable("PLAYER_NAME", minecraftUsername)
-            .SetVariable("DISCORD_NAME", event.getUser().getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-            .SetVariable("DISCORD_UUID", event.getUser().getId())
+            .SetVariables(GetVariables(event.getUser()))
             .AddActionRow(new ActionRow(
                 Button.Primary("whitelist-request-confirm-button", "confirm"), 
                 Button.Destructive("whitelist-request-confirm-cancel", "cancel")
@@ -196,10 +246,7 @@ public class Whitelist extends ListenerAdapter {
         // awaitingConfirmation.remove(event.getUser().getId());
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.whitelistRequestCanceled", 2)
-            .SetVariable("DISCORD_NAME", event.getUser().getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-            .SetVariable("DISCORD_UUID", event.getUser().getId())
+            .SetVariables(GetVariables(event.getUser()))
             .Send(event, true);
     }
     // 4.a Either instant whitelist or get the request approved by admins:
@@ -231,10 +278,7 @@ public class Whitelist extends ListenerAdapter {
                     discord.CreateEmbed()
                         .SetLocalizationNamespace("embeds.whitelistPlayerNotFound", 2)
                         .SetVariable("PLAYER_NAME", minecraftName)
-                        .SetVariable("DISCORD_NAME", event.getUser().getName())
-                        .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-                        .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-                        .SetVariable("DISCORD_UUID", event.getUser().getId())
+                        .SetVariables(GetVariables(event.getUser()))
                         .Send(event, true);
                     return;
                 }
@@ -249,32 +293,20 @@ public class Whitelist extends ListenerAdapter {
     // 4.b Either instant whitelist or get the request approved by the admins:
     void OnWhitelistRequestConfirm(ButtonInteractionEvent event, String minecraftUUID) {
         String minecraftName = awaitingConfirmation.get(event.getUser().getId());
+        // Create a voting request
+        String minecraftKey = players.GetMinecraftKey(minecraftName, minecraftUUID);
+        Request request = new Request(event.getUser().getId(), minecraftName, minecraftUUID, minecraftKey);
+        permanentData.whitelistRequests.put(minecraftKey, request);
         if(!config.voting.enabled) {
             // Instant whitelist, as voting by admins for whitelisting isn't enabled
-            WhitelistPlayer(
-                awaitingConfirmation.get(event.getUser().getId()),
-                minecraftUUID,
-                event.getUser().getId()
-            );
+            WhitelistPlayer(request, event.getGuild());
             return;
         }
-        // Send a voting request
-        String minecraftKey = players.GetMinecraftKey(minecraftName, minecraftUUID);
-        permanentData.whitelistRequests.put(
-            minecraftKey, 
-            new Request(event.getUser().getId(), minecraftName, minecraftUUID, minecraftKey)
-        );
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.whitelistRequestConfirmed", 2)
-            .SetVariable("PLAYER_NAME", minecraftName)
-            .SetVariable("PLAYER_UUID", minecraftUUID)
-            .SetVariable("PLAYER_KEY", minecraftKey)
-            .SetVariable("DISCORD_NAME", event.getUser().getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-            .SetVariable("DISCORD_UUID", event.getUser().getId())
+            .SetVariables(GetVariables(request))
             .Send(event, true);
-        GetVotingMessage(minecraftKey).SendInChannel(config.voting.channel);
+        GetVotingMessage(request).SendInChannel(config.voting.channel);
     }
     // 5.1 A upvote
     void OnWhitelistUpVote(ButtonInteractionEvent event) {
@@ -301,9 +333,9 @@ public class Whitelist extends ListenerAdapter {
 
         event.deferEdit().queue();
         // Check if the vote succeeded
-        if(CheckWhitelistRequest(request.key)) return;
+        if(CheckWhitelistRequest(request, event.getGuild())) return;
         // Else modify the voting message
-        GetVotingMessage(request.key).Modify(event.getMessage());
+        GetVotingMessage(request).Modify(event.getMessage());
     }
     // 5.2 A downvote
     void OnWhitelistDownVote(ButtonInteractionEvent event) {
@@ -328,38 +360,31 @@ public class Whitelist extends ListenerAdapter {
         request.upVotes.remove(event.getUser().getId());
         request.downVotes.add(event.getUser().getId());
         // Check if the vote succeeded
-        if(CheckWhitelistRequest(request.key)) return;
+        if(CheckWhitelistRequest(request, event.getGuild())) return;
         // Else modify the voting message
-        GetVotingMessage(request.key).Modify(event.getMessage());
+        GetVotingMessage(request).Modify(event.getMessage());
         event.deferEdit().queue();
     }
 
     // Last step, whitelist and announce the whitelist
-    void WhitelistPlayer(String minecraftName, String minecraftUUID, String discordUUID) {
-        String minecraftKey = players.GetMinecraftKey(minecraftName, minecraftUUID);
-        permanentData.players.put(minecraftKey, new Player(discordUUID, minecraftName, minecraftUUID));
-        permanentData.players.get(minecraftKey).whitelisted = true;
-        Request request = null;
+    void WhitelistPlayer(Request request, Guild guild) {
+        // Add the player to the whitelist, remove the whitelist request
+        permanentData.players.put(request.key, new Player(request.discordUUID, request.minecraftName, request.minecraftUUID));
+        permanentData.players.get(request.key).whitelisted = true;
+        permanentData.whitelistRequests.remove(request.key);
 
-        User user = discord.GetUserByID(discordUUID);
+        if(config.giveRoleOnWhitelist) {
+            if(!discord.GiveUserRole(guild, request.discordUUID, config.whitelistedRoleID)) {
+                Logs.warn("Cannot give a whitelisted player a role that does not exist");
+            }
+        }
+
         if(config.voting.enabled) {
-            request = permanentData.whitelistRequests.get(minecraftKey);
-            permanentData.whitelistRequests.remove(minecraftKey);
             // Change the voting message:
             Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
             discord.CreateEmbed()
                 .SetLocalizationNamespace("embeds.whitelistVotingAccepted", 2)
-                .SetVariable("PLAYER_NAME", minecraftName)
-                .SetVariable("PLAYER_UUID", minecraftUUID)
-                .SetVariable("PLAYER_KEY", minecraftKey)
-                .SetVariable("DISCORD_NAME", user.getName())
-                .SetVariable("DISCORD_GLOBAL_NAME", user.getGlobalName())
-                .SetVariable("DISCORD_EFFECTIVE_NAME", user.getEffectiveName())
-                .SetVariable("DISCORD_UUID", user.getId())
-                .SetVariable("ACCEPT_VOTES", String.valueOf(request.upVotes.size()))
-                .SetVariable("DENY_VOTES", String.valueOf(request.downVotes.size()))
-                .SetVariable("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()))
-                .SetVariable("MIN_DENY_VOTES", String.valueOf(NeededDownvote()))
+                .SetVariables(GetVariables(request))
                 .Modify(toBeModified);
             discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
         }
@@ -368,42 +393,18 @@ public class Whitelist extends ListenerAdapter {
         if(!config.onAccept.enabled) return;
         Embed embed = discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.publicWhitelistAccepted", 2)
-            .SetVariable("PLAYER_NAME", minecraftName)
-            .SetVariable("PLAYER_UUID", minecraftUUID)
-            .SetVariable("PLAYER_KEY", minecraftKey)
-            .SetVariable("DISCORD_NAME", user.getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", user.getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", user.getEffectiveName())
-            .SetVariable("DISCORD_UUID", user.getId())
-            .SetVariable("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()))
-            .SetVariable("MIN_DENY_VOTES", String.valueOf(NeededDownvote()));
-        if(config.voting.enabled) {
-            embed.SetVariable("ACCEPT_VOTES", String.valueOf(request.upVotes.size()))
-                 .SetVariable("DENY_VOTES", String.valueOf(request.downVotes.size()));
-        }
+            .SetVariables(GetVariables(request));
         embed.SendInChannel(config.onAccept.channel);
     }
-    // Last step, deny the whitelist and annouce it
-    void DenyWhitelistPlayer(String minecraftKey, String discordUUID) {
-        Request request = permanentData.whitelistRequests.get(minecraftKey);
-        permanentData.whitelistRequests.remove(minecraftKey);
+    // Last step, deny the whitelist and announce it
+    void DenyWhitelistPlayer(Request request) {
+        permanentData.whitelistRequests.remove(request.key);
 
-        User user = discord.GetUserByID(discordUUID);
         // Change the voting message:
         Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.whitelistVotingDenied", 2)
-            .SetVariable("PLAYER_NAME", request.minecraftName)
-            .SetVariable("PLAYER_UUID", request.minecraftUUID)
-            .SetVariable("PLAYER_KEY", minecraftKey)
-            .SetVariable("DISCORD_NAME", user.getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", user.getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", user.getEffectiveName())
-            .SetVariable("DISCORD_UUID", user.getId())
-            .SetVariable("ACCEPT_VOTES", String.valueOf(request.upVotes.size()))
-            .SetVariable("DENY_VOTES", String.valueOf(request.downVotes.size()))
-            .SetVariable("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()))
-            .SetVariable("MIN_DENY_VOTES", String.valueOf(NeededDownvote()))
+            .SetVariables(GetVariables(request))
             .Modify(toBeModified);
         discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
 
@@ -411,75 +412,19 @@ public class Whitelist extends ListenerAdapter {
         if(!config.onDeny.enabled) return;
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.publicWhitelistDenied", 2)
-            .SetVariable("PLAYER_NAME", request.minecraftName)
-            .SetVariable("PLAYER_UUID", request.minecraftUUID)
-            .SetVariable("PLAYER_KEY", minecraftKey)
-            .SetVariable("DISCORD_NAME", user.getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", user.getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", user.getEffectiveName())
-            .SetVariable("DISCORD_UUID", user.getId())
-            .SetVariable("ACCEPT_VOTES", String.valueOf(request.upVotes.size()))
-            .SetVariable("DENY_VOTES", String.valueOf(request.downVotes.size()))
-            .SetVariable("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()))
-            .SetVariable("MIN_DENY_VOTES", String.valueOf(NeededDownvote()))
+            .SetVariables(GetVariables(request))
             .SendInChannel(config.onDeny.channel);
     }
 
-    boolean CheckWhitelistRequest(String minecraftKey) {
-        Request request = permanentData.whitelistRequests.get(minecraftKey);
-        if(request.upVotes.size() >= NeededUpVotes()) {
-            // Accept the request
-            WhitelistPlayer(request.minecraftName, request.minecraftUUID, request.discordUUID);
-            return true;
-        } else if(request.downVotes.size() >= NeededDownvote()) {
-            // Deny the request
-            DenyWhitelistPlayer(request.minecraftName, request.discordUUID);
-            return true;
-        }
-        return false;
-    }
-    Embed GetVotingMessage(String minecraftKey) {
-        Request request = permanentData.whitelistRequests.get(minecraftKey);
-        User user = discord.GetUserByID(request.discordUUID);
-        return discord.CreateEmbed()
-            .SetLocalizationNamespace("embeds.whitelistVoting", 2)
-            .SetVariable("PLAYER_NAME", request.minecraftName)
-            .SetVariable("PLAYER_UUID", request.minecraftUUID)
-            .SetVariable("PLAYER_KEY", minecraftKey)
-            .SetVariable("DISCORD_NAME", user.getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", user.getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", user.getEffectiveName())
-            .SetVariable("DISCORD_UUID", user.getId())
-            .SetVariable("ACCEPT_VOTES", String.valueOf(request.upVotes.size()))
-            .SetVariable("DENY_VOTES", String.valueOf(request.downVotes.size()))
-            .SetVariable("MIN_ACCEPT_VOTES", String.valueOf(NeededUpVotes()))
-            .SetVariable("MIN_DENY_VOTES", String.valueOf(NeededDownvote()))
-            .AddActionRow(new ActionRow(
-                Button.Primary("whitelist-vote-up", "acceptButton"),
-                Button.Destructive("whitelist-vote-down", "denyButton")
-            ))
-            .DeleteOnShutdown()
-            .OnSend((String channelID, Long messageID) -> {
-                request.channelID = channelID;
-                request.messageID = messageID;
-            });
-    }
-
-    void SendVotingNotAllowedEmbed(ButtonInteractionEvent event) {
-        discord.CreateEmbed()
-            .SetLocalizationNamespace("embeds.whitelistVotingNotAllowed", 2)
-            .SetVariable("DISCORD_NAME", event.getUser().getName())
-            .SetVariable("DISCORD_GLOBAL_NAME", event.getUser().getGlobalName())
-            .SetVariable("DISCORD_EFFECTIVE_NAME", event.getUser().getEffectiveName())
-            .SetVariable("DISCORD_UUID", event.getUser().getId())
-            .Send(event, true);
-    }
+    /***********************************************************************
+     * Events
+     ***********************************************************************/
 
     public void OnServerStart() {
         SendWhitelistRequestEmbed();
         // Send the whitelist voting messages:
         for(Request request : permanentData.whitelistRequests.values()) {
-            GetVotingMessage(request.key).SendInChannel(config.voting.channel);
+            GetVotingMessage(request).SendInChannel(config.voting.channel);
         }
     }
 

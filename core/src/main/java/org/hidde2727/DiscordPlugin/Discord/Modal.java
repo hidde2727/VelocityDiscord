@@ -2,6 +2,7 @@ package org.hidde2727.DiscordPlugin.Discord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
@@ -34,6 +35,12 @@ public class Modal {
     }
     public Modal SetVariable(String key, String value) {
         variables.Add(key, value);
+        return this;
+    }
+    public Modal SetVariables(Map<String, String> variables) {
+        for(Map.Entry<String, String> entry : variables.entrySet()) {
+            this.variables.Add(entry.getKey(), entry.getValue());
+        }
         return this;
     }
     public Modal Add(SelectMenu row) {

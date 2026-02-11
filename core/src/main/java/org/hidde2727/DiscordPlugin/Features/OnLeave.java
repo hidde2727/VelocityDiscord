@@ -1,6 +1,7 @@
 package org.hidde2727.DiscordPlugin.Features;
 
 import org.hidde2727.DiscordPlugin.Config;
+import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 
@@ -8,9 +9,9 @@ public class OnLeave {
     Discord discord;
     Config.Events.OnLeave config;
 
-    public OnLeave(Discord discord, Config.Events.OnLeave config) {
-        this.discord = discord;
-        this.config = config;
+    public OnLeave(DiscordPlugin plugin) {
+        this.discord = plugin.discord;
+        this.config = plugin.config.events.onLeave;
 
         if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("onLeave channel does not exist");

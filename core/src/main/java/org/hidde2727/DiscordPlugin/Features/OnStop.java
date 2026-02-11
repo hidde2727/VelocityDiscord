@@ -1,6 +1,7 @@
 package org.hidde2727.DiscordPlugin.Features;
 
 import org.hidde2727.DiscordPlugin.Config;
+import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 
@@ -8,9 +9,9 @@ public class OnStop {
     private Discord discord;
     private Config.Events.OnStop config;
 
-    public OnStop(Discord discord, Config.Events.OnStop config) {
-        this.discord = discord;
-        this.config = config;
+    public OnStop(DiscordPlugin plugin) {
+        this.discord = plugin.discord;
+        this.config = plugin.config.events.onStop;
         
         if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("onStop channel does not exist");

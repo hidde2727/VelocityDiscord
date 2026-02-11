@@ -24,7 +24,8 @@ events:
 
   onMessage:
     enabled: false
-    forwardCommands: false
+    minecraftToDiscord: true
+    discordToMinecraft: true
 
     # Uncomment the one that applies to your server type:
 
@@ -34,6 +35,7 @@ events:
 
     # For velocity
     # (The server names are the ones specified in the velocity.toml file you configured)
+    # Do not share discord channels if you have discordToMinecraft enabled
     # channels:
     #   server1: "id..."
     #   server2: "id..."
@@ -53,8 +55,10 @@ connectAccounts: true
 whitelist:
   enabled: false
 
+  # Should this plugin give someone that is whitelisted a special role
   giveRoleOnWhitelist: false
-  whitelistedRole: ""
+  # Enable developer options to get the role ID easily from the discord-server settings:
+  whitelistedRoleID: ""
 
   onAccept:
     enabled: true

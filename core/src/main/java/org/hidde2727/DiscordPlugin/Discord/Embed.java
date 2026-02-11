@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -50,6 +51,12 @@ public class Embed {
     }
     public Embed SetVariable(String key, String value) {
         variables.Add(key, value);
+        return this;
+    }
+    public Embed SetVariables(Map<String, String> variables) {
+        for(Map.Entry<String, String> entry : variables.entrySet()) {
+            this.variables.Add(entry.getKey(), entry.getValue());
+        }
         return this;
     }
     public Embed SetTimestamp() {

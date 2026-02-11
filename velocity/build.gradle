@@ -20,13 +20,19 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:${velocity_version}")
 }
 
+tasks.shadowJar {
+    archiveVersion = ""
+    relocate("org.yaml.snakeyaml", "me.shadow.snakeyaml")
+}
+
 build.dependsOn shadowJar
 
 modrinth {
     token = "${rootProject.ext.modrinth_token}"
     projectId = "${rootProject.ext.modrinth_id}"
     versionNumber = "${version}"
-    versionName = "Velocity - ${version}"
+    versionName = "Discordio - Velocity - ${version}"
+    versionType = "${modrinth_version_type}"
     uploadFile = shadowJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['velocity']

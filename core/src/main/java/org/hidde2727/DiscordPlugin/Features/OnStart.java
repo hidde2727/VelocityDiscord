@@ -1,6 +1,7 @@
 package org.hidde2727.DiscordPlugin.Features;
 
 import org.hidde2727.DiscordPlugin.Config;
+import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 
@@ -8,9 +9,9 @@ public class OnStart {
     private Discord discord;
     private Config.Events.OnStart config;
 
-    public OnStart(Discord discord, Config.Events.OnStart config) {
-        this.discord = discord;
-        this.config = config;
+    public OnStart(DiscordPlugin plugin) {
+        this.discord = plugin.discord;
+        this.config = plugin.config.events.onStart;
         
         if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("onStart channel does not exist");

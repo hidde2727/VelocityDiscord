@@ -9,7 +9,7 @@ import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import org.hidde2727.DiscordPlugin.Implementation.ActiveImplementation;
+import net.minecraft.text.Text;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +20,11 @@ public class Fabric implements ModInitializer, Implementation {
     public final String MOD_ID = "discord-plugin";
     public final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static DiscordPlugin plugin;
+    private MinecraftServer server;
 
     @Override
     public void onInitialize() {
-        ActiveImplementation.active = this;
-        plugin = new DiscordPlugin();
+        plugin = new DiscordPlugin(this);
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::OnServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::OnServerStop);
@@ -35,6 +35,7 @@ public class Fabric implements ModInitializer, Implementation {
 
 
     public void OnServerStart(MinecraftServer server) {
+        this.server = server;
         plugin.OnServerStart();
     }
     public void OnServerStop(MinecraftServer server) {
@@ -75,9 +76,16 @@ public class Fabric implements ModInitializer, Implementation {
         LOGGER.error(message);
     }
     public Path GetDataDirectory() {
-        return FabricLoader.getInstance().getConfigDir().resolve("fabric-discord");
+        return FabricLoader.getInstance().getConfigDir().resolve("discordio");
     }
     public boolean IsOnlineMode() {
-        return true;//TODO
+        return server.isOnlineMode();
+    }
+    public void SendMessage(String serverID, String message) {
+        if(!serverID.equals("fabric")) {
+            Logs.error("Cannot send a message to a server other than the server with the id 'fabric' (check the onMessage event in your config.yml, it may only contain fabric)");
+            return;
+        }
+        server.sendMessage(Text.of(message));
     }
 }

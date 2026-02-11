@@ -1,11 +1,10 @@
 package org.hidde2727.DiscordPlugin;
 
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
@@ -14,7 +13,7 @@ public class StringProcessor implements Cloneable {
     private ResourceBundle localization;
 
     public static class VariableMap {
-        private Map<String, Object> variables = new HashMap<>();
+        private final Map<String, Object> variables = new HashMap<>();
         public interface VariableFunction {
             public String getReplacement();
         }
@@ -41,22 +40,29 @@ public class StringProcessor implements Cloneable {
     }
 
 
-    public StringProcessor(VariableMap variables, int priority, ResourceBundle localization) {
-        this.variables.put(priority, variables);
-        this.localization = localization;
-    }
     public StringProcessor(VariableMap variables, ResourceBundle localization) {
         this.variables.put(100, variables);
         this.localization = localization;
     }
-    /**
-     * 
-     * @param variables Prioritized map of variable maps
-     * @param localization The localization bundle to use
-     */
-    public StringProcessor(SortedMap<Integer, VariableMap> variables, ResourceBundle localization) {
-        this.variables = variables;
-        this.localization = localization;
+
+    public static StringProcessor FromResource(VariableMap variables, String resourceName) {
+        return new StringProcessor(variables, ResourceBundle.getBundle(resourceName));
+    }
+    public static StringProcessor FromFile(VariableMap variables, File folder, String resourceName) {
+        URL[] urls;
+        try {
+            urls = new URL[]{folder.toURI().toURL()};
+        } catch(Exception exc) {
+            Logs.error("Illegal URL for loading StringProcessor from a file");
+            return null;
+        }
+        try (URLClassLoader loader = new URLClassLoader(urls)) {
+            ResourceBundle rb = ResourceBundle.getBundle(resourceName, Locale.getDefault(), loader);
+            return new StringProcessor(variables, rb);
+        } catch(Exception exc) {
+            Logs.error("Failed to load StringProcessor FromFile");
+            return null;
+        }
     }
 
     /**

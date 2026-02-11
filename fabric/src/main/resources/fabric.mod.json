@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "discord-plugin",
+  "id": "discordio",
   "version": "1.0.0",
   "name": "Discord management fabric",
   "description": "A server side mod to add discord messages to your server",

@@ -9,4 +9,5 @@ public interface Implementation {
     public void error(String message);
     public Path GetDataDirectory();
     public boolean IsOnlineMode();
+    public void SendMessage(String serverID, String message);
 }

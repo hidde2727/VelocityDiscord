@@ -5,65 +5,50 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ResourceBundle;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Features.*;
-import org.hidde2727.DiscordPlugin.Implementation.ActiveImplementation;
+import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 
 public class DiscordPlugin {
-    public DiscordPlugin() {
-        Path dataDirectory = ActiveImplementation.active.GetDataDirectory();
-        // Create the config directory
-        try {
-            if(!dataDirectory.toFile().exists()) {
-                if(!dataDirectory.toFile().mkdir()) {
-                    Logs.warn("Failed to create the config directory");
-                    disabled = true;
-                    return;
-                }
-            }
-        } catch(Exception exception) {
-            Logs.warn("Failed to create the config directory");
-            disabled = true;
-            return;
-        }
-        // Create the config file if it does not exist
-        File configFile = dataDirectory.resolve("config.yml").toFile();
-        if(!configFile.exists()) {
+    public DiscordPlugin(Implementation implementation) {
+        this.implementation = implementation;
+        Logs.useForLogging = this;
 
-            Logs.info("No config file found, creating a new config file");
-            try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("config.yml")) {
-                if(is == null) {
-                    Logs.warn("Failed to find the config file resource");
-                    disabled = true;
-                    return;
-                }
-                Files.copy(is, configFile.toPath());
-            } catch (IOException e) {
-                Logs.warn("Failed to create a config file");
-                disabled = true;
-                return;
-            }
-        }
-        this.config = Config.Load(configFile);
-        this.dataStorage = DataStorage.Load(dataDirectory.resolve("data.yml").toFile());
+        Path dataDirectory = implementation.GetDataDirectory();
+
+        CreateDirectoryIfNotExists(dataDirectory);
+        File configFile = dataDirectory.resolve("config.yml").toFile();
+        CreateFileIfNotExists(configFile, "config.yml");
+        File messageFile = dataDirectory.resolve("messages.properties").toFile();
+        CreateFileIfNotExists(messageFile, "messages.properties");
+
+        config = Config.Load(configFile);
+        dataStorage = DataStorage.Load(dataDirectory.resolve("data.yml").toFile());
+
+        SetupVariableMap();
+        stringProcessor = StringProcessor.FromFile(globalVariables, dataDirectory.toFile(), "messages");
+
         try {
-            discord = new Discord(config.botToken, ResourceBundle.getBundle("messages"));
+            discord = new Discord(config.botToken, stringProcessor);
         } catch(Exception exc) {
             Logs.warn(exc.getMessage());
             disabled = true;
             return;
         }
-        this.players = new PlayerManager(config, dataStorage, ActiveImplementation.active.IsOnlineMode());
+        players = new PlayerManager(config, dataStorage, implementation.IsOnlineMode());
 
         // Add all the features
-        this.onStart = new OnStart(discord, config.events.onStart);
-        this.onStop = new OnStop(discord, config.events.onStop);
-        this.onJoin = new OnJoin(discord, config.events.onJoin);
-        this.onLeave = new OnLeave(discord, config.events.onLeave);
-        this.onMessage = new OnMessage(discord, config.events.onMessage);
-        this.whitelist = new Whitelist(discord, config.whitelist, dataStorage, players);
+        this.onStart = new OnStart(this);
+        this.onStop = new OnStop(this);
+        this.onJoin = new OnJoin(this);
+        this.onLeave = new OnLeave(this);
+        this.onMessage = new OnMessage(this);
+        this.whitelist = new Whitelist(this);
     }
 
     public void OnServerStart() {
@@ -76,12 +61,12 @@ public class DiscordPlugin {
 
     }
     public void OnServerStop() {
+        discord.Shutdown();
         if(disabled) return;
 
-        Path dataDirectory = ActiveImplementation.active.GetDataDirectory();
         onStop.OnServerStop();
-        discord.Shutdown();
 
+        Path dataDirectory = implementation.GetDataDirectory();
         File dataFile = dataDirectory.resolve("data.yml").toFile();
         if(!dataFile.exists()) {
             try {
@@ -116,11 +101,58 @@ public class DiscordPlugin {
         onLeave.OnPlayerDisconnect(playerName, playerUUID);
     }
 
+    private void CreateDirectoryIfNotExists(Path folder) {
+        try {
+            if(!folder.toFile().exists()) {
+                if(!folder.toFile().mkdir()) {
+                    Logs.warn("Failed to create a directory");
+                    disabled = true;
+                    return;
+                }
+            }
+        } catch(Exception exception) {
+            Logs.warn("Failed to create a directory");
+            disabled = true;
+            return;
+        }
+    }
+    private void CreateFileIfNotExists(File file, String useResource) {
+        if(file.exists()) return;
+    
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(useResource)) {
+            if(is == null) {
+                Logs.warn("Failed to find the resource to create file");
+                disabled = true;
+                return;
+            }
+            Files.copy(is, file.toPath());
+        } catch (IOException e) {
+            Logs.warn("Failed to create a file from a resource");
+            disabled = true;
+            return;
+        }
+    }
+    private void SetupVariableMap() {
+        globalVariables.AddFunction("CURRENT_DATE", () -> { return LocalDate.now().toString(); });
+        globalVariables.AddFunction("CURRENT_TIME", () -> { return LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
+        globalVariables.AddFunction("CURRENT_DATE_TIME", () -> { return LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
+        globalVariables.AddFunction("CURRENT_NANO_SECONDS", () -> { return String.valueOf(LocalDateTime.now().getNano()); });
+        globalVariables.AddFunction("CURRENT_SECOND", () -> { return String.valueOf(LocalDateTime.now().getSecond()); });
+        globalVariables.AddFunction("CURRENT_MINUTE", () -> { return String.valueOf(LocalDateTime.now().getMinute()); });
+        globalVariables.AddFunction("CURRENT_HOUR", () -> { return String.valueOf(LocalDateTime.now().getHour()); });
+        globalVariables.AddFunction("CURRENT_DAY", () -> { return String.valueOf(LocalDateTime.now().getDayOfMonth()); });
+        globalVariables.AddFunction("CURRENT_MONTH", () -> { return String.valueOf(LocalDateTime.now().getMonthValue()); });
+        globalVariables.AddFunction("CURRENT_YEAR", () -> { return String.valueOf(LocalDateTime.now().getYear()); });
+    }
+
     boolean disabled = false;
-    private Config config = new Config();
-    private DataStorage dataStorage = new DataStorage();
-    private PlayerManager players;
-    private Discord discord;
+    public Config config = new Config();
+    public DataStorage dataStorage = new DataStorage();
+    public PlayerManager players;
+    public Discord discord;
+    public StringProcessor stringProcessor;
+    public StringProcessor.VariableMap globalVariables = new StringProcessor.VariableMap();
+    public Implementation implementation;
     // Features:
     OnStart onStart;
     OnStop onStop;
