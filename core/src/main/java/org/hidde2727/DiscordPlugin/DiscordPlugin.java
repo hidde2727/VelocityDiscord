@@ -34,7 +34,7 @@ public class DiscordPlugin {
         stringProcessor = StringProcessor.FromFile(globalVariables, dataDirectory.toFile(), "messages");
 
         try {
-            discord = new Discord(config.botToken, stringProcessor);
+            discord = new Discord(config.botToken, config.guildId, stringProcessor);
         } catch(Exception exc) {
             Logs.warn(exc.getMessage());
             disabled = true;
@@ -49,6 +49,7 @@ public class DiscordPlugin {
         this.onLeave = new OnLeave(this);
         this.onMessage = new OnMessage(this);
         this.whitelist = new Whitelist(this);
+        this.maintenance = new Maintenance(this);
     }
 
     public void OnServerStart() {
@@ -58,7 +59,7 @@ public class DiscordPlugin {
         discord.AddEventListener(onMessage);
         this.whitelist.OnServerStart();
         discord.AddEventListener(whitelist);
-
+        discord.AddEventListener(maintenance);
     }
     public void OnServerStop() {
         discord.Shutdown();
@@ -88,6 +89,7 @@ public class DiscordPlugin {
 
         if(!whitelist.OnPlayerPreLogin(playerName, playerUUID)) return false;
         // TODO: Check bans
+        if(!maintenance.OnPlayerPreLogin(playerName, playerUUID)) return false;
         return true;
     }
     public void OnPlayerConnect(String playerName, String playerUUID) {
@@ -160,4 +162,5 @@ public class DiscordPlugin {
     OnLeave onLeave;
     OnMessage onMessage;
     Whitelist whitelist;
+    Maintenance maintenance;
 }

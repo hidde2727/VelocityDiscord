@@ -3,6 +3,7 @@ package org.hidde2727.DiscordPlugin.Discord;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.JDA;
@@ -26,12 +27,17 @@ public class Discord {
         long messageId;
     };
     List<MessageID> toDelete = new ArrayList<>();
+    String guildId = "";
 
-    public Discord(String botToken, StringProcessor processor) throws Exception {
+    public Discord(String botToken, String guildId, StringProcessor processor) throws Exception {
         jda = JDABuilder.createDefault(botToken)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .build()
                 .awaitReady();
+        this.guildId = guildId;
+        if(jda.getGuildById(guildId) == null) {
+            throw new Exception("Received a guild that does not exist");
+        }
         this.stringProcessor = processor;
     }
 
@@ -64,7 +70,9 @@ public class Discord {
         return jda.retrieveUserById(id).complete();
     }
 
-    public boolean GiveUserRole(Guild guild, String userId, String role) {
+    public boolean GiveUserRole(String userId, String role) {
+        Guild guild = jda.getGuildById(guildId);
+        if(guild == null) return false;
         Role guildRole = guild.getRoleById(role);
         if(guildRole == null) return false;
         guild.addRoleToMember(guild.getMemberById(userId), guildRole).queue();
@@ -95,6 +103,10 @@ public class Discord {
             if(roles.contains(role.getName())) return true;
         }
         return false;
+    }
+
+    public void AddCommand(CommandData command) {
+        jda.getGuildById(guildId).updateCommands().addCommands(command).queue();
     }
 
     public void AddEventListener(Object... listeners) {

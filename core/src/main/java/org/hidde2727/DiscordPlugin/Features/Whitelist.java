@@ -17,7 +17,6 @@ import org.hidde2727.DiscordPlugin.Discord.Embed;
 import org.hidde2727.DiscordPlugin.Discord.TextField;
 import org.json.JSONObject;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
@@ -155,10 +154,10 @@ public class Whitelist extends ListenerAdapter {
      * General functions
      ***********************************************************************/
 
-    boolean CheckWhitelistRequest(Request request, Guild guild) {
+    boolean CheckWhitelistRequest(Request request) {
         if(request.upVotes.size() >= NeededUpVotes()) {
             // Accept the request
-            WhitelistPlayer(request, guild);
+            WhitelistPlayer(request);
             return true;
         } else if(request.downVotes.size() >= NeededDownvote()) {
             // Deny the request
@@ -299,7 +298,7 @@ public class Whitelist extends ListenerAdapter {
         permanentData.whitelistRequests.put(minecraftKey, request);
         if(!config.voting.enabled) {
             // Instant whitelist, as voting by admins for whitelisting isn't enabled
-            WhitelistPlayer(request, event.getGuild());
+            WhitelistPlayer(request);
             return;
         }
         discord.CreateEmbed()
@@ -333,7 +332,7 @@ public class Whitelist extends ListenerAdapter {
 
         event.deferEdit().queue();
         // Check if the vote succeeded
-        if(CheckWhitelistRequest(request, event.getGuild())) return;
+        if(CheckWhitelistRequest(request)) return;
         // Else modify the voting message
         GetVotingMessage(request).Modify(event.getMessage());
     }
@@ -360,21 +359,21 @@ public class Whitelist extends ListenerAdapter {
         request.upVotes.remove(event.getUser().getId());
         request.downVotes.add(event.getUser().getId());
         // Check if the vote succeeded
-        if(CheckWhitelistRequest(request, event.getGuild())) return;
+        if(CheckWhitelistRequest(request)) return;
         // Else modify the voting message
         GetVotingMessage(request).Modify(event.getMessage());
         event.deferEdit().queue();
     }
 
     // Last step, whitelist and announce the whitelist
-    void WhitelistPlayer(Request request, Guild guild) {
+    void WhitelistPlayer(Request request) {
         // Add the player to the whitelist, remove the whitelist request
         permanentData.players.put(request.key, new Player(request.discordUUID, request.minecraftName, request.minecraftUUID));
         permanentData.players.get(request.key).whitelisted = true;
         permanentData.whitelistRequests.remove(request.key);
 
         if(config.giveRoleOnWhitelist) {
-            if(!discord.GiveUserRole(guild, request.discordUUID, config.whitelistedRoleID)) {
+            if(!discord.GiveUserRole(request.discordUUID, config.whitelistedRoleID)) {
                 Logs.warn("Cannot give a whitelisted player a role that does not exist");
             }
         }

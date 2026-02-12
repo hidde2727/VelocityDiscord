@@ -1,6 +1,7 @@
 package org.hidde2727.DiscordPlugin.Features;
 
 import org.hidde2727.DiscordPlugin.Config;
+import org.hidde2727.DiscordPlugin.DataStorage;
 import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
@@ -9,9 +10,12 @@ public class OnStart {
     private Discord discord;
     private Config.Events.OnStart config;
 
+    DataStorage.Maintenance maintenance;
+
     public OnStart(DiscordPlugin plugin) {
         this.discord = plugin.discord;
         this.config = plugin.config.events.onStart;
+        this.maintenance = plugin.dataStorage.maintenance;
         
         if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("onStart channel does not exist");
@@ -24,6 +28,8 @@ public class OnStart {
 
     public void OnServerStart() {
         if(!config.enabled) return;
+        if(maintenance.InMaintenance()) return;
+
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.onStart", 2)
             .SendInChannel(config.channel);

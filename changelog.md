@@ -1,0 +1,2 @@
+- Added a maintenance mode
+- The config and data storage now load even if there are unknown properties

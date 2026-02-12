@@ -16,3 +16,4 @@ def loadSecretProps(String filename) {
     }
 }
 loadSecretProps("secrets.properties")
+ext.modrinth_changelog = new File('changelog.md').getText()

@@ -3,6 +3,8 @@
 # If you really want to disable a feature, but this wrecks your whitelist/install, you should delete the data.yml file
 
 botToken:   "Insert your token here, see the README.md on how to get a token"
+# Guild ID is needed for adding commands
+guildId:    "Insert your guild id here (the ID of your discord server)"
 
 # Discord messages for in game events
 events:
@@ -51,12 +53,13 @@ useUUID: true
 # If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 connectAccounts: true
 
-# Whistlisting via discord
+# Whitelisting via discord
 whitelist:
   enabled: false
 
   # Should this plugin give someone that is whitelisted a special role
   giveRoleOnWhitelist: false
+  # The role to give a player when he is whitelisted (only if giveRoleOnWhitelist=true)
   # Enable developer options to get the role ID easily from the discord-server settings:
   whitelistedRoleID: ""
 
@@ -96,3 +99,28 @@ banning:
     allowedRoles: []
     acceptVotes: "50%"
     denyVotes: "1"
+
+maintenance:
+  # Disables events and rejects everyone not on the crew list
+  enabled: false
+  # Enable maintenance mode from the config:
+  inMaintenance: false
+  # Players allowed to join during maintenance
+  # Use UUID's if useUUID=true, else use player names
+  # This does not override the whitelist and banning features, you still need to be whitelisted to enter
+  crew: ["player1", "player2"]
+  # Command to enable maintenance mode via discord
+  command:
+    enabled: false
+    checkChannel: true
+    allowedChannels: ["id..."]
+    checkRoles: false
+    allowedRoles: []
+  # On start messages
+  onStart:
+    enabled: false
+    channel: "id..."
+  # On end message
+  onStop:
+    enabled: false
+    channel: "id..."

@@ -25,7 +25,10 @@ public class DataStorage {
         TagInspector taginspector =
                 tag -> tag.getClassName().equals(DataStorage.class.getName());
         loaderoptions.setTagInspector(taginspector);
-        Yaml yaml = new Yaml(new Constructor(DataStorage.class, loaderoptions));
+        DumperOptions options = new DumperOptions();
+        Representer representer = new Representer(options);
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+        Yaml yaml = new Yaml(new Constructor(DataStorage.class, loaderoptions), representer, options);
 
         try {
             return yaml.load(new FileInputStream(dataFile));
@@ -91,13 +94,21 @@ public class DataStorage {
         public String minecraftName;
         public String minecraftUUID;
     }
+    public static class Maintenance {
+        public boolean configMaintenance = false;
+        public boolean discordCommandMaintenance = false;
+
+        public boolean InMaintenance() {
+            return configMaintenance || discordCommandMaintenance;
+        }
+    }
 
     // If the key off all the player maps is their name or UUID
     public boolean minecraftUUIDKey = false;
     // If one discord use is only allowed one minecraft account
     public boolean connectDiscord = false;
 
-    public boolean inMaintenanceMode = false;
+    public Maintenance maintenance = new Maintenance();
 
     public Map<String, Request> whitelistRequests = new HashMap<>();
     public Bans bans = new Bans();

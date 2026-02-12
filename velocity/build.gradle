@@ -36,4 +36,5 @@ modrinth {
     uploadFile = shadowJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['velocity']
+    changelog = "${rootProject.ext.modrinth_changelog}"
 }

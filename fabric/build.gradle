@@ -83,4 +83,5 @@ modrinth {
     uploadFile = remapJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['fabric']
+    changelog = "${rootProject.ext.modrinth_changelog}"
 }

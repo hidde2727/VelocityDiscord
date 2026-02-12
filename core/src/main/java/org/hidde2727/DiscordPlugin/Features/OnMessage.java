@@ -3,6 +3,7 @@ package org.hidde2727.DiscordPlugin.Features;
 import java.util.Map.Entry;
 
 import org.hidde2727.DiscordPlugin.Config;
+import org.hidde2727.DiscordPlugin.DataStorage;
 import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
@@ -15,9 +16,12 @@ public class OnMessage extends ListenerAdapter {
     Config.Events.OnMessage config;
     DiscordPlugin plugin;
 
+    DataStorage.Maintenance maintenance;
+
     public OnMessage(DiscordPlugin plugin) {
         this.discord = plugin.discord;
         this.config = plugin.config.events.onMessage;
+        this.maintenance = plugin.dataStorage.maintenance;
         this.plugin = plugin;
 
         if(!config.enabled) return;
@@ -35,6 +39,8 @@ public class OnMessage extends ListenerAdapter {
     public void OnPlayerMessage(String onServer, String playerName, String playerUUID, String message) {
         if(!config.enabled) return;
         if(!config.minecraftToDiscord) return;
+        if(maintenance.InMaintenance()) return;
+
         discord.CreateEmbed()
             .SetLocalizationNamespace("embeds.onMessage", 2)
             .SetVariable("PLAYER_NAME", playerName)
@@ -48,7 +54,9 @@ public class OnMessage extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if(!config.enabled) return;
         if(!config.discordToMinecraft) return;
+        if(maintenance.InMaintenance()) return;
         if(event.getAuthor().getId().equals(discord.GetSelfId())) return;// Make sure to not create an infinite loop
+
         // Find the channel to user:
         String channelID = event.getChannel().getId();
         String serverID = null;
