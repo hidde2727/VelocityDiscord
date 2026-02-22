@@ -8,6 +8,9 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.hidde2727.DiscordPlugin.*;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
+import org.hidde2727.DiscordPlugin.Storage.Config;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage;
+import org.hidde2727.DiscordPlugin.Storage.Language;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Maintenance extends ListenerAdapter {
+    Language language;
     Discord discord;
     Config.Maintenance config;
     DataStorage.Maintenance permanentData;
@@ -23,6 +27,7 @@ public class Maintenance extends ListenerAdapter {
     String commandOptionName;
 
     public Maintenance(DiscordPlugin plugin) {
+        this.language = plugin.language;
         this.discord = plugin.discord;
         this.config = plugin.config.maintenance;
         this.permanentData = plugin.dataStorage.maintenance;
@@ -39,31 +44,48 @@ public class Maintenance extends ListenerAdapter {
         }
 
         if(config.command.enabled) {
+            Language.Command cmdLanguage = plugin.language.commands.get("maintenance");
+            if(cmdLanguage == null) {
+                Logs.error("Maintenance command missing from the language.yml file");
+                return;
+            }
+            Language.Command.Option optLanguage = cmdLanguage.options.get("startStop");
+            if(optLanguage == null) {
+                Logs.error("Maintenance command options missing from the language.yml file");
+                return;
+            }
+            if(optLanguage.options.size() < 2) {
+                Logs.error("Maintenance command not enough options for the first options of the language.yml");
+                return;
+            }
+
+            commandName = plugin.stringProcessor.GetString(cmdLanguage.name);
+            commandOptionName = plugin.stringProcessor.GetString(optLanguage.name);
+
             Predicate<String> pattern = Pattern.compile("^[\\w-]+$").asMatchPredicate();
-            commandName = plugin.stringProcessor.GetString("name", "maintenanceCommand", 1);
-            commandOptionName = plugin.stringProcessor.GetString("name", "maintenanceCommand.option", 1);
             if(!pattern.test(commandName) || !pattern.test(commandOptionName)) {
                 Logs.warn("maintenanceCommand.name and maintenanceCommand.option.name in the messages.properties file may only contain letters and dashes (-)");
                 config.command.enabled = false;
                 return;
             }
+
             discord.AddCommand(Commands.slash(
                 commandName,
-                plugin.stringProcessor.GetString("description", "maintenanceCommand", 1)
+                plugin.stringProcessor.GetString(cmdLanguage.description)
                 )
                 .addOptions(
                     (new OptionData(
                         OptionType.STRING,
                         commandOptionName,
-                        plugin.stringProcessor.GetString("description", "maintenanceCommand.option", 1),
+                        plugin.stringProcessor.GetString(optLanguage.description),
                         true
                     )
                     .addChoice(
-                        plugin.stringProcessor.GetString("start", "maintenanceCommand", 1),
+                        plugin.stringProcessor.GetString(optLanguage.options.get(0)),
                         "start"
                     )
                     .addChoice(
-                        plugin.stringProcessor.GetString("stop", "maintenanceCommand", 1),
+                        plugin.stringProcessor.GetString(optLanguage.options.get(1)),
                         "stop"
                     )
                 )
@@ -85,7 +107,7 @@ public class Maintenance extends ListenerAdapter {
         if(!config.onStart.enabled) return;
         
         discord.CreateEmbed()
-                .SetLocalizationNamespace("embeds.onMaintenanceStart", 2)
+                .SetLanguageNamespace("maintenance", "onStart")
                 .SendInChannel(config.onStart.channel);
     }
     void OnDisable() {
@@ -93,7 +115,7 @@ public class Maintenance extends ListenerAdapter {
         if(!config.onStop.enabled) return;
 
         discord.CreateEmbed()
-                .SetLocalizationNamespace("embeds.onMaintenanceStop", 2)
+                .SetLanguageNamespace("maintenance", "onStop")
                 .SendInChannel(config.onStop.channel);
     }
 
@@ -117,7 +139,7 @@ public class Maintenance extends ListenerAdapter {
         if(config.command.checkChannel) {
             if(!config.command.allowedChannels.contains(event.getChannelId())) {
                 discord.CreateEmbed()
-                    .SetLocalizationNamespace("embeds.maintenanceCommandWrongChannel", 2)
+                    .SetLanguageNamespace("maintenance", "wrongChannel")
                     .SetVariables(GetVariables(event.getUser()))
                     .Send(event, true);
                 return;
@@ -126,7 +148,7 @@ public class Maintenance extends ListenerAdapter {
         if(config.command.checkRoles) {
             if(!discord.DoesUserHaveRoleInChannel(event.getChannelId(), event.getUser().getIdLong(), config.command.allowedRoles)) {
                 discord.CreateEmbed()
-                    .SetLocalizationNamespace("embeds.maintenanceCommandNotAllowed", 2)
+                    .SetLanguageNamespace("maintenance", "notALlowed")
                     .SetVariables(GetVariables(event.getUser()))
                     .Send(event, true);
                 return;
@@ -144,7 +166,7 @@ public class Maintenance extends ListenerAdapter {
             return;
         }
         discord.CreateEmbed()
-            .SetLocalizationNamespace("embeds.maintenanceCommand", 2)
+            .SetLanguageNamespace("maintenance", "command")
             .SetVariables(GetVariables(event.getUser()))
             .SetVariable("COMMAND_OPTION", event.getOption(commandOptionName).getAsString())
             .Send(event, true);

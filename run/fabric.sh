@@ -14,7 +14,7 @@ cd ./run/fabric
 # Disable the proxy mod
 mv ./mods/FabricProxy-Lite.jar ./mods/FabricProxy-Lite.jar.disabled
 
-# Remove the message.properties for easier testing
-rm ./config/discordio/messages.properties
+# Remove the language.yml for easier testing
+rm ./config/discordio/language.yml
 
 ./start.sh

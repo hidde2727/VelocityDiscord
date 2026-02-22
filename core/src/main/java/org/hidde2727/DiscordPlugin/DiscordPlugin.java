@@ -12,7 +12,12 @@ import java.time.temporal.ChronoUnit;
 
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Features.*;
+import org.hidde2727.DiscordPlugin.Features.Banning.Banning;
+import org.hidde2727.DiscordPlugin.Features.Whitelist.Whitelist;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
+import org.hidde2727.DiscordPlugin.Storage.Config;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage;
+import org.hidde2727.DiscordPlugin.Storage.Language;
 
 public class DiscordPlugin {
     public DiscordPlugin(Implementation implementation) {
@@ -24,22 +29,39 @@ public class DiscordPlugin {
         CreateDirectoryIfNotExists(dataDirectory);
         File configFile = dataDirectory.resolve("config.yml").toFile();
         CreateFileIfNotExists(configFile, "config.yml");
-        File messageFile = dataDirectory.resolve("messages.properties").toFile();
-        CreateFileIfNotExists(messageFile, "messages.properties");
+        File messageFile = dataDirectory.resolve("language.yml").toFile();
+        CreateFileIfNotExists(messageFile, "language.yml");
 
         config = Config.Load(configFile);
+        language = Language.Load(messageFile);
         dataStorage = DataStorage.Load(dataDirectory.resolve("data.yml").toFile());
 
+        if(dataStorage == null) {
+            disabled = true;
+            Logs.warn("Failed to load data storage file, disabling the plugin");
+            return;
+        }
+        if(language == null) {
+            disabled = true;
+            Logs.warn("Failed to load language file, disabling the plugin");
+            return;
+        }
+
         SetupVariableMap();
-        stringProcessor = StringProcessor.FromFile(globalVariables, dataDirectory.toFile(), "messages");
+        stringProcessor = new StringProcessor(globalVariables);
 
         try {
-            discord = new Discord(config.botToken, config.guildId, stringProcessor);
+            discord = new Discord(config.botToken, config.guildId, stringProcessor, language);
         } catch(Exception exc) {
             Logs.warn(exc.getMessage());
             disabled = true;
             return;
         }
+    }
+
+    public void OnServerStart() {
+        if(disabled) return;
+
         players = new PlayerManager(config, dataStorage, implementation.IsOnlineMode());
 
         // Add all the features
@@ -49,20 +71,19 @@ public class DiscordPlugin {
         this.onLeave = new OnLeave(this);
         this.onMessage = new OnMessage(this);
         this.whitelist = new Whitelist(this);
+        this.banning = new Banning(this);
         this.maintenance = new Maintenance(this);
-    }
-
-    public void OnServerStart() {
-        if(disabled) return;
 
         this.onStart.OnServerStart();
         discord.AddEventListener(onMessage);
         this.whitelist.OnServerStart();
         discord.AddEventListener(whitelist);
+        this.banning.OnServerStart();
+        discord.AddEventListener(banning);
         discord.AddEventListener(maintenance);
     }
     public void OnServerStop() {
-        discord.Shutdown();
+        if(discord != null) discord.Shutdown();
         if(disabled) return;
 
         onStop.OnServerStop();
@@ -85,10 +106,9 @@ public class DiscordPlugin {
     }
     public boolean OnPlayerPreLogin(String playerName, String playerUUID) {
         if(disabled) return false;
-        Logs.info("Player with UUID: " + playerUUID);
 
         if(!whitelist.OnPlayerPreLogin(playerName, playerUUID)) return false;
-        // TODO: Check bans
+        if(!banning.OnPlayerPreLogin(playerName, playerUUID)) return false;
         if(!maintenance.OnPlayerPreLogin(playerName, playerUUID)) return false;
         return true;
     }
@@ -149,6 +169,7 @@ public class DiscordPlugin {
 
     boolean disabled = false;
     public Config config = new Config();
+    public Language language = new Language();
     public DataStorage dataStorage = new DataStorage();
     public PlayerManager players;
     public Discord discord;
@@ -162,5 +183,6 @@ public class DiscordPlugin {
     OnLeave onLeave;
     OnMessage onMessage;
     Whitelist whitelist;
+    Banning banning;
     Maintenance maintenance;
 }

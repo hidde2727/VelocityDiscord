@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
 
@@ -26,27 +27,28 @@ public class Embed {
     private Discord discord;
     private StringProcessor processor;
     private StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
-    private String namespace;
-    private int maxNamespaceSearchDepth;
-    private boolean setTimestamp = false;
-    private boolean deleteOnShutdown = false;
+    private Map<String, String> translations;
     private List<ActionRow> actionRows = new ArrayList<>();
     private BiConsumer<String, Long> onSend = null;
+    private boolean setTimestamp = false;
+    private boolean deleteOnShutdown = false;
 
     Embed(Discord discord) {
         this.discord = discord;
     }
 
     private String ProcessString(String key) {
-        return processor.GetString(key, namespace, maxNamespaceSearchDepth);
+        return processor.ProcessVariables(translations.get(key));
     }
     private Color ProcessColor(String key) {
-        return processor.GetColor(key, namespace, maxNamespaceSearchDepth);
+        return processor.GetColor(translations.get(key));
     }
 
-    public Embed SetLocalizationNamespace(String namespace, int maxSearchDepth) {
-        this.namespace = namespace;
-        this.maxNamespaceSearchDepth = maxSearchDepth;
+    public Embed SetLanguageNamespace(String namespace, String key) {
+        this.translations = discord.GetLanguage().GetEmbed(namespace, key);
+        if(translations.isEmpty()) {
+            Logs.warn("An embed with translation keys ['" + namespace + "', '" + key + "'] requested but no translations were not found");
+        }
         return this;
     }
     public Embed SetVariable(String key, String value) {
@@ -77,7 +79,7 @@ public class Embed {
     }
 
     private MessageEmbed Build() {
-        if(namespace == null) return null;
+        if(translations == null) return null;
 
         this.processor = discord.GetStringProcessor().AddVariables(variables, 50);
 
@@ -106,7 +108,7 @@ public class Embed {
         }
         MessageCreateAction message = discord.jda.getTextChannelById(channelId).sendMessageEmbeds(this.Build());
         for(ActionRow row : actionRows) {
-            row.AddTo(message, processor, namespace, maxNamespaceSearchDepth);
+            row.AddTo(message, processor, translations);
         }
         message.queue(onSuccess);
     }
@@ -123,7 +125,7 @@ public class Embed {
         }
         ReplyCallbackAction message = callback.replyEmbeds(this.Build());
         for(ActionRow row : actionRows) {
-            row.AddTo(message, processor, namespace, maxNamespaceSearchDepth);
+            row.AddTo(message, processor, translations);
         }
         message.setEphemeral(ephermal).queue(onSuccess);
     }
@@ -140,7 +142,7 @@ public class Embed {
 
         MessageEditData edit = MessageEditBuilder.fromMessage(message)
         .setEmbeds(this.Build())
-        .setComponents(this.actionRows.stream().map((row)->row.Build(processor, namespace, maxNamespaceSearchDepth)).toList())
+        .setComponents(this.actionRows.stream().map((row)->row.Build(processor, translations)).toList())
         .setReplace(true)
         .build();
         message.editMessage(edit).queue(onSuccess);

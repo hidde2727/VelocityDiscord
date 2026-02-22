@@ -1,0 +1,416 @@
+embeds:
+  #
+  # *************************************************************************
+  #  Events                                                                 *
+  # *************************************************************************
+  #
+  events:
+    embeds:
+      onStart:
+        title: "-------------[Online]-------------"
+        description: ":green_circle: **Proxy** is online!"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      onStop:
+        title: "-------------[Offline]-------------"
+        description: ":no_entry: **Proxy** is offline!"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      onJoin:
+        title: "-------------[Connected]-------------"
+        description: "**${PLAYER_NAME}** joined the server!"
+        imageUrl: "https://minotar.net/helm/${PLAYER_NAME}/240.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      onLeave:
+        title: "-------------[Disconnected]-------------"
+        description: "**${PLAYER_NAME}** left the server!"
+        imageUrl: "https://minotar.net/helm/${PLAYER_NAME}/240.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      onMessage:
+        description: "[${PLAYER_NAME}] ${MESSAGE}"
+
+  #
+  # *************************************************************************
+  #  Whitelisting                                                           *
+  # *************************************************************************
+  #
+  whitelist:
+    embeds:
+      alreadyWhitelisted:
+        title: "Sorry, you already made a whitelist request."
+        description: "You are either already whitelisted, or you made a request previously that is being approved. Please wait patiently"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "BLUE"
+
+      request:
+        title: "------------[Request access]------------"
+        description: "Do you also want to be whitelisted?\nClick the button below to request access to the minecraft server!"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          button:
+            label: "Request whitelist"
+            emoji: "U+2705"
+        color: "BLUE"
+
+      notAllowed:
+        title: "You are not allowed to request to be whitelisted"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      requestConfirm:
+        title: "Is this you?"
+        description: "Check if the skin below is from your account ${PLAYER_NAME}"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          confirm:
+            label: "This is me"
+            emoji: "U+2705"
+          cancel:
+            label: "Cancel"
+            emoji: "U+26D4"
+        color: "BLUE"
+
+      notFound:
+        title: "Your player was not found"
+        description: "Your player was not found at the Mojang servers"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      requestCanceled:
+        title: "Request was canceled"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      requestConfirmed:
+        title: "Your request will be reviewed by the admins"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      voting:
+        title: "------------[Whitelist request]------------"
+        description: "The discord user <@${DISCORD_UUID}> would like to have his minecraft account **${PLAYER_NAME}** to be whitelisted.\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          accept:
+            label: "Accept"
+            emoji: "U+2705"
+          deny:
+            label: "Deny"
+            emoji: "U+26D4"
+        color: "GREEN"
+
+      votingDenied:
+        title: "------------[Whitelist denied]------------"
+        description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was denied"
+        imageUrl: "https://minotar.net/avatar/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      votingAccepted:
+        title: "------------[Whitelist accepted]------------"
+        description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was accepted"
+        imageUrl: "https://minotar.net/avatar/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      votingNotAllowed:
+        title: "You are not allowed to vote"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      publicDenied:
+        title: "------------[Whitelist denied]------------"
+        description: "**${PLAYER_NAME}** did not get whitelisted\n(Requested by <@${DISCORD_UUID}>)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      publicAccepted:
+        title: "------------[Whitelist accepted]------------"
+        description: "**${PLAYER_NAME}** got whitelisted\n(Requested by <@${DISCORD_UUID}>)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+  #
+  # *************************************************************************
+  #  Banning                                                               *
+  # *************************************************************************
+  #
+  banning:
+    embeds:
+      request:
+        title: "------------[Request punishment]------------"
+        description: "Is someone being annoying?\nClick the button below to request a ban"
+        actions:
+          button:
+            label: "Request ban"
+            emoji: "U+2705"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      alreadyRequested:
+        title: "Sorry, you already made a ban request."
+        description: "You made a ban request previously that is being approved. Please wait patiently"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "BLUE"
+
+      playerNotFound:
+        title: "That discord user is not registered"
+        description: "The discord user does not have a minecraft account linked. The request is ignored"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "BLUE"
+
+      requestNotAllowed:
+        title: "You are not allowed to request a ban"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      requestConfirm:
+        title: "Do you want to ban this user?"
+        description: "Check if the skin below is from your account ${PLAYER_NAME}"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        actions:
+          confirm:
+            label: "This is him"
+            emoji: "U+2705"
+          cancel:
+            label: "Cancel"
+            emoji: "U+26D4"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      requestNotFound:
+        title: "The user was not found"
+        description: "There was no account found associated with the discord user"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      requestCanceled:
+        title: "Request was canceled"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      requestConfirmed:
+        title: "Your request will be reviewed by the admins"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+
+      punishmentPicker:
+        title: "Ban request - punishment"
+        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\""
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          punishment:
+            label: "Punishment"
+        color: "ORANGE"
+
+      punishmentVoting:
+        title: "Ban request - punishment"
+        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\".\n <@${ADMIN_UUID}> suggests **${PUNISHMENT}** \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          accept:
+            label: "Accept"
+            emoji: "U+2705"
+          deny:
+            label: "Deny"
+            emoji: "U+26D4"
+        color: "ORANGE"
+
+      punishmentDecided:
+        title: "Ban request - punishment"
+        description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**"
+        imageUrl: "https://minotar.net/avatar/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      punishmentVotingNotAllowed:
+        title: "You are not allowed to vote"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      reasonPicker:
+        title: "Ban Request - Reason"
+        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\". This reason was denied, what should the reason be?"
+        imageUrl: "https://minotar.net/head/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          change:
+            label: "Change reason"
+        color: "ORANGE"
+
+      reasonFirstVote:
+        title: "Ban request - Reason"
+        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${REASON}\".\n Is this a good **reason**? \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        imageUrl: "https://minotar.net/head/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          accept:
+            label: "Accept"
+            emoji: "U+2705"
+          deny:
+            label: "Deny"
+            emoji: "U+26D4"
+        color: "ORANGE"
+
+      reasonVoting:
+        title: "Ban request - Reason change"
+        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\".\n\n <@${ADMIN_UUID}> suggests to change the reason to \"${REASON}\" \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request"
+        imageUrl: "https://minotar.net/head/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        actions:
+          accept:
+            label: "Accept"
+            emoji: "U+2705"
+          deny:
+            label: "Deny"
+            emoji: "U+26D4"
+        color: "ORANGE"
+
+      reasonDecided:
+        title: "Ban request - Reason"
+        description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**. This because \"${REASON}\""
+        imageUrl: "https://minotar.net/avatar/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      reasonVotingNotAllowed:
+        title: "You are not allowed to vote"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+      publicDenied:
+        title: "------------[Ban denied]------------"
+        description: "**${PLAYER_NAME}** did not get banned\n(Requested by <@${DISCORD_UUID}>)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      publicAccepted:
+        title: "------------[Ban accepted]------------"
+        description: "**${PLAYER_NAME}** got a ${PUNISHMENT} because '${REASON}'\n(Requested by <@${DISCORD_UUID}>)"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "RED"
+
+  #
+  # *************************************************************************
+  #  Maintenance                                                            *
+  # *************************************************************************
+  #
+
+  maintenance:
+    embeds:
+      onStart:
+        title: "------------[Maintenance]------------"
+        description: "Sorry, the server is in maintenance mode, you cannot join right now"
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "YELLOW"
+
+      onStop:
+        title: "------------[Maintenance]------------"
+        description: "The server is back online, the maintenance has ended."
+        footer:
+          message: "${CURRENT_DATE} ${CURRENT_TIME}"
+        color: "GREEN"
+
+      notAllowed:
+        title: "Sorry, you are not allowed to use this command"
+
+      wrongChannel:
+        title: "Sorry, yoy cannot use this command in this channel"
+
+      command:
+        title: "Consider it done boss"
+
+#
+# *************************************************************************
+#  Modals                                                                 *
+# *************************************************************************
+#
+modals:
+  whitelist:
+    modals:
+      request:
+        title: "Whitelist request"
+        actions:
+          username:
+            label: "Username"
+            placeholder: "Steve1234"
+
+  banning:
+    modals:
+      request:
+        title: "Ban request"
+        actions:
+          discordUser:
+            label: "Discord user"
+          minecraftUser:
+            label: "Minecraft account"
+          reason:
+            label: "Reason"
+            placeholder: "Please give a good reason why you want this player banned"
+      reasonChange:
+        title: "Change reason"
+        actions:
+          reason:
+            label: "Reason"
+            placeholder: "${ORIGINAL_REASON}"
+            value: "${ORIGINAL_REASON}"
+
+#
+# *************************************************************************
+#  Commands                                                               *
+# *************************************************************************
+#
+commands:
+  maintenance:
+    name: "maintenance"
+    description: "A command to start or stop the maintenance mode"
+    options:
+      startStop:
+        name: "start-stop"
+        description: "Either start or stop the maintenance mode"
+        options: ["start", "stop"]

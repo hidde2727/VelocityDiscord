@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.components.label.Label;
@@ -14,9 +15,8 @@ public class Modal {
     private Discord discord;
     private StringProcessor processor;
     private StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
+    private Map<String, String> translations = null;
     private String modalID;
-    private String namespace;
-    private int maxNamespaceSearchDepth;
     private List<Object> items = new ArrayList<>();
 
     Modal(Discord discord, String id) {
@@ -25,12 +25,14 @@ public class Modal {
     }
 
     private String ProcessString(String key) {
-        return processor.GetString(key, namespace, maxNamespaceSearchDepth);
+        return processor.GetString(translations.get(key));
     }
 
-    public Modal SetLocalizationNamespace(String namespace, int maxSearchDepth) {
-        this.namespace = namespace;
-        this.maxNamespaceSearchDepth = maxSearchDepth;
+    public Modal SetLanguageNamespace(String namespace, String key) {
+        this.translations = discord.GetLanguage().GetModal(namespace, key);
+        if(translations.isEmpty()) {
+            Logs.warn("A modal with translation keys ['" + namespace + "', '" + key + "'] requested but no translations were not found");
+        }
         return this;
     }
     public Modal SetVariable(String key, String value) {
@@ -53,23 +55,29 @@ public class Modal {
     }
 
     private net.dv8tion.jda.api.modals.Modal Build() {
-        if(namespace == null) return null;
+        if(translations == null) {
+            Logs.error("You must set the translation namespace and key of a modal before building it");
+            return null;
+        }
 
         this.processor = discord.GetStringProcessor().AddVariables(variables, 50);
 
-        net.dv8tion.jda.api.modals.Modal.Builder modal = net.dv8tion.jda.api.modals.Modal.create(modalID, ProcessString("title"));
+        String title = ProcessString("title");
+        if(title == null) title = "EMpty modal, no data was provided";
+
+        net.dv8tion.jda.api.modals.Modal.Builder modal = net.dv8tion.jda.api.modals.Modal.create(modalID, title);
         for(Object item : items) {
             if(item instanceof SelectMenu) {
                 SelectMenu menu = (SelectMenu)item;
                 modal.addComponents(Label.of(
-                    menu.GetLabel(processor, namespace, maxNamespaceSearchDepth),
-                    (net.dv8tion.jda.api.components.selections.SelectMenu)menu.Build(processor, namespace, maxNamespaceSearchDepth)
+                    menu.GetLabel(processor, translations),
+                    (net.dv8tion.jda.api.components.selections.SelectMenu)menu.Build(processor, translations)
                 ));
             } else {
                 TextField field = (TextField)item;
                 modal.addComponents(Label.of(
-                    field.GetLabel(processor, namespace, maxNamespaceSearchDepth),
-                    field.Build(processor, namespace, maxNamespaceSearchDepth)
+                    field.GetLabel(processor, translations),
+                    field.Build(processor, translations)
                 ));
             }
         }

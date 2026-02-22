@@ -1,2 +1,3 @@
-- Added a maintenance mode
-- The config and data storage now load even if there are unknown properties
+- Changed language file from messages.properties to language.yml
+- Added punishments
+- Reworked whitelisting

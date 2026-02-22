@@ -1,7 +1,7 @@
 package org.hidde2727.DiscordPlugin.Features;
 
-import org.hidde2727.DiscordPlugin.Config;
-import org.hidde2727.DiscordPlugin.DataStorage;
+import org.hidde2727.DiscordPlugin.Storage.Config;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.DiscordPlugin;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
@@ -31,7 +31,7 @@ public class OnJoin {
         if(maintenance.InMaintenance()) return;
 
         discord.CreateEmbed()
-            .SetLocalizationNamespace("embeds.onJoin", 2)
+            .SetLanguageNamespace("events", "onJoin")
             .SetVariable("PLAYER_NAME", playerName)
             .SetVariable("PLAYER_UUID", playerUUID)
             .SendInChannel(config.channel);

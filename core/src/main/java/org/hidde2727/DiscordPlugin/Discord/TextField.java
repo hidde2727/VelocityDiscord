@@ -4,6 +4,8 @@ import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 
+import java.util.Map;
+
 public class TextField {
     String id;
     String localizationKey;
@@ -27,12 +29,15 @@ public class TextField {
     }
 
 
-    public String GetLabel(StringProcessor processor, String namespace, int maxSearchDepth) {
-        return processor.GetString(localizationKey + ".label", namespace, maxSearchDepth);
+    public String GetLabel(StringProcessor processor, Map<String, String> translations) {
+        String label = translations.get("actions." + localizationKey + ".label");
+        if(label == null) label = "NO_LABEL_SPECIFIED";
+        return processor.GetString(label);
     }
-    public net.dv8tion.jda.api.components.textinput.TextInput Build(StringProcessor processor, String namespace, int maxSearchDepth) {
+    public net.dv8tion.jda.api.components.textinput.TextInput Build(StringProcessor processor, Map<String, String> translations) {
         return net.dv8tion.jda.api.components.textinput.TextInput.create(id, type)
-            .setPlaceholder(processor.GetString(localizationKey + ".placeholder", namespace, maxSearchDepth))
+            .setPlaceholder(processor.GetString(translations.get("actions." + localizationKey + ".placeholder")))
+            .setValue(processor.GetString(translations.get("actions." + localizationKey + ".value")))
             .setMinLength(minLength)
             .setMaxLength(maxLength)
             .setRequired(true)

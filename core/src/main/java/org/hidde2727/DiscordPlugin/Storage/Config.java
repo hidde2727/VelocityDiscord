@@ -1,4 +1,4 @@
-package org.hidde2727.DiscordPlugin;
+package org.hidde2727.DiscordPlugin.Storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hidde2727.DiscordPlugin.Logs;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -97,13 +98,44 @@ public class Config {
     }
 
     public static class Banning {
+        public static class OnAccept {
+            public boolean enabled = false;
+            public String channel = "";
+        };
+        public static class OnDeny {
+            public boolean enabled = false;
+            public String channel = "";
+        };
         public static class Request {
             public boolean enabled = false;
             public String channel = "";
             public boolean checkRoles = false;
             public List<String> allowedRoles = new ArrayList<>();
+            public String identifier = "discord";
         }
-        public static class Voting {
+        public static class PunishmentPicker {
+            public enum PunishmentType {
+                Null,
+                None,
+                PermBan,
+                Ban,
+                Kick,
+                // Mute,
+                // Warn,
+            }
+            public static class Punishment {
+                public PunishmentType type = PunishmentType.Null;
+                public String duration = "0";
+            }
+            public boolean enabled = false;
+            public String channel = "";
+            public boolean checkRoles = false;
+            public List<String> allowedRoles = new ArrayList<>();
+            public String acceptVotes = "50%";
+            public String denyVotes = "1";
+            public Map<String, Punishment> punishments;
+        }
+        public static class ReasonPicker {
             public boolean enabled = false;
             public String channel = "";
             public boolean checkRoles = false;
@@ -112,8 +144,13 @@ public class Config {
             public String denyVotes = "1";
         }
         public boolean enabled = false;
+        public boolean giveRoleOnBan = false;
+        public String bannedRoleID = "";
+        public OnAccept onAccept = new OnAccept();
+        public OnDeny onDeny = new OnDeny();
         public Request request = new Request();
-        public Voting voting = new Voting();
+        public PunishmentPicker punishment = new PunishmentPicker();
+        public ReasonPicker reason = new ReasonPicker();
     }
     public static class Maintenance {
 

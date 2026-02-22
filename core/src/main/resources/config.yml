@@ -60,7 +60,7 @@ whitelist:
   # Should this plugin give someone that is whitelisted a special role
   giveRoleOnWhitelist: false
   # The role to give a player when he is whitelisted (only if giveRoleOnWhitelist=true)
-  # Enable developer options to get the role ID easily from the discord-server settings:
+  # Enable developer options to get the role ID easily from the discord server settings:
   whitelistedRoleID: ""
 
   onAccept:
@@ -86,13 +86,62 @@ whitelist:
 # Banning via discord
 banning:
   enabled: false
+
+  # Should this plugin give someone that is banned a special role
+  giveRoleOnBan: false
+  # The role to give a player when he is banned (only if giveRoleOnBan=true)
+  # Enable developer options to get the role ID easily from the discord server settings:
+  bannedRoleID: ""
+
+  onAccept:
+    enabled: true
+    channel: "id..."
+  onDeny:
+    enabled: true
+    channel: "id..."
   request:
     enabled: true
     channel: "id..."
     checkRoles: false
     allowedRoles: []
-  voting:
-    # If disabled, a request will imply an immediate ban
+    # Choose one of the following ways a user can choose who he wants to ban:
+    # - "discord" select the discord username they want banned (cannot be used if connectAccounts=false)
+    # - "minecraft" select the minecraft username they want banned
+    identifier: "discord"
+  punishment:
+    # If disabled, a request will proceed as a perm ban request to reason picking
+    enabled: true
+    channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+    acceptVotes: "50%"
+    denyVotes: "1"
+    punishments:
+      # If you do not keep the none punishment, the admins cannot deny a ban request
+      "None":
+        type: None
+      "Permanent ban":
+        type: PermBan
+      "5m ban":
+        type: Ban
+        duration: 300
+      "1h ban":
+        type: Ban
+        duration: 3600
+      "2h ban":
+        type: Ban
+        duration: 7200
+      "1d ban":
+        type: Ban
+        duration: 86400
+      "kick 1x":
+        type: Kick
+        duration: 1
+      "kick 3x":
+        type: Kick
+        duration: 3
+  reason:
+    # If disabled, a request will keep the reason of the request
     enabled: true
     channel: "id..."
     checkRoles: false

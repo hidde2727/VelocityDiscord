@@ -1,16 +1,12 @@
 package org.hidde2727.DiscordPlugin;
 
 import java.awt.Color;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class StringProcessor implements Cloneable {
     private SortedMap<Integer, VariableMap> variables = new TreeMap<>();
-    private ResourceBundle localization;
 
     public static class VariableMap {
         private final Map<String, Object> variables = new HashMap<>();
@@ -40,29 +36,8 @@ public class StringProcessor implements Cloneable {
     }
 
 
-    public StringProcessor(VariableMap variables, ResourceBundle localization) {
+    public StringProcessor(VariableMap variables) {
         this.variables.put(100, variables);
-        this.localization = localization;
-    }
-
-    public static StringProcessor FromResource(VariableMap variables, String resourceName) {
-        return new StringProcessor(variables, ResourceBundle.getBundle(resourceName));
-    }
-    public static StringProcessor FromFile(VariableMap variables, File folder, String resourceName) {
-        URL[] urls;
-        try {
-            urls = new URL[]{folder.toURI().toURL()};
-        } catch(Exception exc) {
-            Logs.error("Illegal URL for loading StringProcessor from a file");
-            return null;
-        }
-        try (URLClassLoader loader = new URLClassLoader(urls)) {
-            ResourceBundle rb = ResourceBundle.getBundle(resourceName, Locale.getDefault(), loader);
-            return new StringProcessor(variables, rb);
-        } catch(Exception exc) {
-            Logs.error("Failed to load StringProcessor FromFile");
-            return null;
-        }
     }
 
     /**
@@ -108,6 +83,7 @@ public class StringProcessor implements Cloneable {
      * @return The string with all the ${variableKey} subsituted
      */
     public String ProcessVariables(String str) {
+        if(str == null) return null;
         String ret = "";
         int currentOffset = 0;
         while(true) {
@@ -132,36 +108,12 @@ public class StringProcessor implements Cloneable {
         return ret;
     }
 
-    /**
-     * The following example:
-     * ```
-     * GetString("title.name", "embeds.events.OnStart", 3);
-     * ```
-     * Checks to find title.name in the following locations:
-     * - embeds.events.OnStart.title.name
-     * - embeds.events.title.name
-     * - embeds.title.name
-     * 
-     * If the string was found, it will escape all the variables present (signalled by $(VARIABLE_NAME))
-     * 
-     * @param key The key
-     * @param namespace The namespace
-     * @param maxSearchDepth The maximum amount of namespace to check
-     * @return null if not found, else the string
-     */
-    public String GetString(String key, String namespace, int maxSearchDepth) {
-        // Find the string
-        for(int i = 0; i < maxSearchDepth; i++) {
-            if(localization.containsKey(namespace + "." + key)) break;
-            int index = namespace.lastIndexOf('.');
-            if(index == -1) return null;
-            namespace = namespace.substring(0, index);
-        }
-        return ProcessVariables(localization.getString(namespace + "." + key));
+    public String GetString(String str) {
+        return ProcessVariables(str);
     }
 
-    public Color GetColor(String key, String namespace, int maxSearchDepth) {
-        String colString = GetString(key, namespace, maxSearchDepth);
+    public Color GetColor(String str) {
+        String colString = GetString(str);
         if(colString == null) return null;
         String colStringNoWhitespace = colString.replaceAll("\\s+","");
         try {
@@ -196,10 +148,10 @@ public class StringProcessor implements Cloneable {
         return null;
     }
 
-    public Emoji GetEmoji(String key, String namespace, int maxSearchDepth) {
-        String str = GetString(key, namespace, maxSearchDepth);
+    public Emoji GetEmoji(String str) {
+        String unprocessed = GetString(str);
         try {
-            return Emoji.fromFormatted(str);
+            return Emoji.fromFormatted(unprocessed);
         } catch(Exception ignored) {}
         return null;
     }
@@ -207,7 +159,6 @@ public class StringProcessor implements Cloneable {
     @Override
     public Object clone() throws CloneNotSupportedException {
         StringProcessor clone = (StringProcessor)super.clone();
-        clone.localization = this.localization;
         clone.variables = new TreeMap<>();
         for(int key : variables.keySet()) {
             clone.variables.put(key, variables.get(key));

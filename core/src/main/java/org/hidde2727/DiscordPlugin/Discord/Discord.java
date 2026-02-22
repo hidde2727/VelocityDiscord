@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import org.hidde2727.DiscordPlugin.Storage.Language;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.JDA;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 public class Discord {
     JDA jda;
     final StringProcessor stringProcessor;
+    final Language languageConfig;
     public static class MessageID {
         public MessageID(String channelId, long messageId) {
             this.channelId = channelId;
@@ -29,7 +31,9 @@ public class Discord {
     List<MessageID> toDelete = new ArrayList<>();
     String guildId = "";
 
-    public Discord(String botToken, String guildId, StringProcessor processor) throws Exception {
+    public Discord(String botToken, String guildId, StringProcessor processor, Language languageConfig) throws Exception {
+        this.languageConfig = languageConfig;
+        this.stringProcessor = processor;
         jda = JDABuilder.createDefault(botToken)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .build()
@@ -38,13 +42,14 @@ public class Discord {
         if(jda.getGuildById(guildId) == null) {
             throw new Exception("Received a guild that does not exist");
         }
-        this.stringProcessor = processor;
     }
 
     public void Shutdown() {
         // Delete all the messages marked to be deleted:
         for(MessageID messageId: toDelete) {
-            jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).complete();
+            try {
+                jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).complete();
+            } catch(Exception ignored) { }
         }
         // Stop JDA
         jda.shutdown();
@@ -67,6 +72,7 @@ public class Discord {
     }
 
     public User GetUserByID(String id) {
+        if(id == null) return null;
         return jda.retrieveUserById(id).complete();
     }
 
@@ -116,6 +122,7 @@ public class Discord {
     StringProcessor GetStringProcessor() {
         return stringProcessor;
     }
+    Language GetLanguage() { return languageConfig; }
     
     public Embed CreateEmbed() {
         return new Embed(this);

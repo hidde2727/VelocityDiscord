@@ -1,9 +1,12 @@
 package org.hidde2727.DiscordPlugin.Discord;
 
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+
+import java.util.Map;
 
 public class Button implements ActionRowItem {
     String id;
@@ -31,15 +34,15 @@ public class Button implements ActionRowItem {
         return new Button(url, localizationKey, ButtonStyle.LINK);
     }
 
-    public String GetLabel(StringProcessor processor, String namespace, int maxSearchDepth) {
-        return processor.GetString(localizationKey + ".label", namespace, maxSearchDepth);
+    public String GetLabel(StringProcessor processor, Map<String, String> translations) {
+        String label = translations.get("actions." + localizationKey + ".label");
+        if(label == null) label = "NO_LABEL_SPECIFIED";
+        return processor.GetString(label);
     }
-    public ActionRowChildComponent Build(StringProcessor processor, String namespace, int maxSearchDepth) {
-        return net.dv8tion.jda.api.components.buttons.Button.of(
-            style,
-            id,
-            processor.GetString(localizationKey + ".label", namespace, maxSearchDepth),
-            processor.GetEmoji(localizationKey + ".emoji", namespace, maxSearchDepth)
-        );
+    public ActionRowChildComponent Build(StringProcessor processor, Map<String, String> translations) {
+        String label = processor.GetString(translations.get("actions." + localizationKey + ".label"));
+        Emoji emoji = processor.GetEmoji(translations.get("actions." + localizationKey + ".emoji"));
+        if(label == null && emoji == null) label = "EMPTY_BUTTON";
+        return net.dv8tion.jda.api.components.buttons.Button.of(style, id, label, emoji);
     }
 }

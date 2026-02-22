@@ -3,6 +3,7 @@ package org.hidde2727.DiscordPlugin.Discord;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.hidde2727.DiscordPlugin.StringProcessor;
 
@@ -21,13 +22,13 @@ public class ActionRow {
         this.items.add(item);
     }
 
-    void AddTo(MessageCreateRequest<?> message, StringProcessor processor, String namespace, int maxSearchDepth) {
-        message.addComponents(Build(processor, namespace, maxSearchDepth));
+    void AddTo(MessageCreateRequest<?> message, StringProcessor processor, Map<String, String> translations) {
+        message.addComponents(Build(processor, translations));
     }
-    net.dv8tion.jda.api.components.actionrow.ActionRow Build(StringProcessor processor, String namespace, int maxSearchDepth) {
+    net.dv8tion.jda.api.components.actionrow.ActionRow Build(StringProcessor processor, Map<String, String> translations) {
         List<ActionRowChildComponent> components = new ArrayList<>();
         for(ActionRowItem item : items) {
-            components.add(item.Build(processor, namespace, maxSearchDepth));
+            components.add(item.Build(processor, translations));
         }
         return net.dv8tion.jda.api.components.actionrow.ActionRow.of(components);
     }

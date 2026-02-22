@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.components.selections.EntitySelectMenu.SelectTarget;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class SelectMenu implements ActionRowItem {
     enum Type {
@@ -20,12 +19,13 @@ public class SelectMenu implements ActionRowItem {
     String id;
     String localizationKey;
     Type type;
-    Map<String, String> optionIds;
+    Map<String, String> options;
 
-    SelectMenu(String id, String localizationKey, Type type, Map<String, String> optionIds) {
+    SelectMenu(String id, String localizationKey, Type type, Map<String, String> options) {
         this.id = id;
         this.type = type;
-        this.optionIds = optionIds;
+        this.options = options;
+        this.localizationKey = localizationKey;
     }
     SelectMenu(String id, String localizationKey, Type type) {
         this(id, localizationKey, type, null);
@@ -42,32 +42,32 @@ public class SelectMenu implements ActionRowItem {
         return new SelectMenu(id, localizationKey, Type.Role);
 
     }
-    public static SelectMenu Custom(String id, String localizationKey, Map<String, String> optionIds) {
-        return new SelectMenu(id, localizationKey, Type.Custom, optionIds);
+    public static SelectMenu Custom(String id, String localizationKey, Map<String, String> options) {
+        return new SelectMenu(id, localizationKey, Type.Custom, options);
 
     }
 
-    public String GetLabel(StringProcessor processor, String namespace, int maxSearchDepth) {
-        return processor.GetString(localizationKey + ".label", namespace, maxSearchDepth);
+    public String GetLabel(StringProcessor processor, Map<String, String> translations) {
+        String label = translations.get("actions." + localizationKey + ".label");
+        if(label == null) label = "NO_LABEL_SPECIFIED";
+        return processor.GetString(label);
     }
-    public ActionRowChildComponent Build(StringProcessor processor, String namespace, int maxSearchDepth) {
+    public ActionRowChildComponent Build(StringProcessor processor, Map<String, String> translations) {
         if(type == Type.User) {
-            return EntitySelectMenu.create(id, SelectTarget.USER).build();
+            return EntitySelectMenu.create(id, SelectTarget.USER).setMaxValues(1).setMinValues(1).setRequired(true).build();
         } else if(type == Type.Channel) {
-            return EntitySelectMenu.create(id, SelectTarget.CHANNEL).build();
+            return EntitySelectMenu.create(id, SelectTarget.CHANNEL).setMaxValues(1).setMinValues(1).setRequired(true).build();
         } else if(type == Type.Role) {
-            return EntitySelectMenu.create(id, SelectTarget.ROLE).build();
+            return EntitySelectMenu.create(id, SelectTarget.ROLE).setMaxValues(1).setMinValues(1).setRequired(true).build();
         } else if(type == Type.Custom) {
             StringSelectMenu.Builder menu = StringSelectMenu.create(id);
-            for(Map.Entry<String, String> entry : optionIds.entrySet()) {
+            for(Map.Entry<String, String> entry : options.entrySet()) {
                 menu.addOption(
                     entry.getKey(),
-                    processor.GetString(localizationKey + ".option." + entry.getValue() + ".label", namespace, maxSearchDepth),
-                    processor.GetString(localizationKey + ".option." + entry.getValue() + ".description", namespace, maxSearchDepth),
-                    Emoji.fromFormatted(processor.GetString(localizationKey + ".option." + entry.getValue() + ".emoji", namespace, maxSearchDepth))
+                    entry.getValue()
                 );
             }
-            return menu.setRequired(true).build();
+            return menu.setMaxValues(1).setMinValues(1).setRequired(true).build();
         }
         return null;
     }

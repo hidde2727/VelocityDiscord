@@ -2,7 +2,9 @@ package org.hidde2727.DiscordPlugin;
 
 import java.util.UUID;
 
-import org.hidde2727.DiscordPlugin.DataStorage.Player;
+import org.hidde2727.DiscordPlugin.Storage.Config;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player;
 
 public class PlayerManager {
     DataStorage storage;
@@ -57,5 +59,12 @@ public class PlayerManager {
     }
     public Player GetPlayer(String username, String UUID) {
         return GetPlayer(GetMinecraftKey(username, UUID));
+    }
+    public Player GetPlayerByDiscord(String discordUUID) {
+        if(!ConnectAccounts()) return null;
+        for(Player player : storage.players.values()) {
+            if(player.discordUUID.equals(discordUUID)) return player;
+        }
+        return null;
     }
 }

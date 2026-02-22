@@ -17,8 +17,8 @@ cp ../velocity/build/libs/velocity-all.jar ./velocity/plugins/velocity-discord.j
 mv ./fabric/mods/FabricProxy-Lite.jar.disabled ./fabric/mods/FabricProxy-Lite.jar
 rm ./fabric/mods/fabric-discord.jar
 
-# Remove the message.properties for easier testing
-rm ./velocity/plugins/discordio/messages.properties
+# Remove the language.yml for easier testing
+rm ./velocity/plugins/discordio/language.yml
 
 nohup ./fabric/start.sh &
 ./velocity/start.sh
