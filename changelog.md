@@ -1,1 +1,1 @@
-- Safe shutdown in a docker container
+- Default config clarifications

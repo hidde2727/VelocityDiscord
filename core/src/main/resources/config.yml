@@ -157,6 +157,7 @@ maintenance:
   # Players allowed to join during maintenance
   # Use UUID's if useUUID=true, else use player names
   # This does not override the whitelist and banning features, you still need to be whitelisted to enter
+  # A UUID should be without dashes so: 123456789abcdefghijklmni12345678
   crew: ["player1", "player2"]
   # Command to enable maintenance mode via discord
   command:
