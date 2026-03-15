@@ -83,13 +83,16 @@ public class DiscordPlugin {
         discord.AddEventListener(maintenance);
     }
     public void OnServerStop() {
-        try {
-            if(!disabled) onStop.OnServerStop();
-            if(discord != null) discord.Shutdown();
-            if(disabled) return;
-        } catch(Exception exc) {
-            Logs.warn("Failed to shutdown discord gracefully: " + exc.getMessage());
+        Logs.info("Stopping the discord plugin");
+        if(!disabled) onStop.OnServerStop();
+
+        if(discord != null) {
+            discord.Shutdown();
+            discord = null;
         }
+
+        if(disabled) return;
+        disabled = true;
 
         Path dataDirectory = implementation.GetDataDirectory();
         File dataFile = dataDirectory.resolve("data.yml").toFile();

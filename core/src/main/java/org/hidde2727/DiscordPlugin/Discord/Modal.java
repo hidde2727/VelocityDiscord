@@ -85,6 +85,10 @@ public class Modal {
         return modal.build();
     }
     public void Send(IModalCallback replyCallback) {
-        replyCallback.replyModal(this.Build()).queue();
+        try {
+            replyCallback.replyModal(this.Build()).queue();
+        } catch(Exception exc) {
+            Logs.warn("Failed to send a modal: " + exc.getMessage());
+        }
     }
 }

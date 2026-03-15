@@ -106,11 +106,15 @@ public class Embed {
                 }
             };
         }
-        MessageCreateAction message = discord.jda.getTextChannelById(channelId).sendMessageEmbeds(this.Build());
-        for(ActionRow row : actionRows) {
-            row.AddTo(message, processor, translations);
+        try {
+            MessageCreateAction message = discord.jda.getTextChannelById(channelId).sendMessageEmbeds(this.Build());
+            for(ActionRow row : actionRows) {
+                row.AddTo(message, processor, translations);
+            }
+            message.queue(onSuccess);
+        } catch(Exception exc) {
+            Logs.warn("Failed to send an embed: " + exc.getMessage());
         }
-        message.queue(onSuccess);
     }
     public void Send(IReplyCallback callback, boolean ephermal) {
         Consumer<InteractionHook> onSuccess = null;
@@ -123,11 +127,15 @@ public class Embed {
                 }
             };
         }
-        ReplyCallbackAction message = callback.replyEmbeds(this.Build());
-        for(ActionRow row : actionRows) {
-            row.AddTo(message, processor, translations);
+        try {
+            ReplyCallbackAction message = callback.replyEmbeds(this.Build());
+            for(ActionRow row : actionRows) {
+                row.AddTo(message, processor, translations);
+            }
+            message.setEphemeral(ephermal).queue(onSuccess);
+        } catch(Exception exc) {
+            Logs.warn("Failed to send an embed: " + exc.getMessage());
         }
-        message.setEphemeral(ephermal).queue(onSuccess);
     }
     public void Modify(Message message) {
         Consumer<Message> onSuccess = null;
@@ -140,11 +148,15 @@ public class Embed {
             };
         }
 
-        MessageEditData edit = MessageEditBuilder.fromMessage(message)
-        .setEmbeds(this.Build())
-        .setComponents(this.actionRows.stream().map((row)->row.Build(processor, translations)).toList())
-        .setReplace(true)
-        .build();
-        message.editMessage(edit).queue(onSuccess);
+        try {
+            MessageEditData edit = MessageEditBuilder.fromMessage(message)
+            .setEmbeds(this.Build())
+            .setComponents(this.actionRows.stream().map((row)->row.Build(processor, translations)).toList())
+            .setReplace(true)
+            .build();
+            message.editMessage(edit).queue(onSuccess);
+        } catch(Exception exc) {
+            Logs.warn("Failed to modify an embed: " + exc.getMessage());
+        }
     }
 };

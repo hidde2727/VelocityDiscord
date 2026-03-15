@@ -1,1 +1,1 @@
-- A bit more shutdown safety
+- Safe shutdown in a docker container
