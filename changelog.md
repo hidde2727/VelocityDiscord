@@ -1,1 +1,1 @@
-- Bugfix of shutdown
+- A bit more shutdown safety
