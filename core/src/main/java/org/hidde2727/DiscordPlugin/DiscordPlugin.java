@@ -83,10 +83,9 @@ public class DiscordPlugin {
         discord.AddEventListener(maintenance);
     }
     public void OnServerStop() {
+        if(!disabled) onStop.OnServerStop();
         if(discord != null) discord.Shutdown();
         if(disabled) return;
-
-        onStop.OnServerStop();
 
         Path dataDirectory = implementation.GetDataDirectory();
         File dataFile = dataDirectory.resolve("data.yml").toFile();

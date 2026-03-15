@@ -1,1 +1,1 @@
-Slight message changes
+- Bugfix of shutdown
