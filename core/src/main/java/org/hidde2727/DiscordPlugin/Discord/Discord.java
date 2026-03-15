@@ -2,7 +2,6 @@ package org.hidde2727.DiscordPlugin.Discord;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
@@ -55,10 +54,6 @@ public class Discord {
             } catch(Exception ignored) { }
         }
         // Stop JDA
-        Logs.info("Waiting for JDA requests to finish");
-        try {
-            TimeUnit.SECONDS.sleep(1);// Neccesary because queued messages need to be processed before shutdown is called
-        } catch(Exception ignored) {}
         Logs.info("Shutting down JDA");
         jda.shutdown();
     }
