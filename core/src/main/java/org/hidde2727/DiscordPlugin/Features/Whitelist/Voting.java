@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.hidde2727.DiscordPlugin.Discord.ActionRow;
 import org.hidde2727.DiscordPlugin.Discord.Button;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
+import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
 import org.hidde2727.DiscordPlugin.Discord.Embed;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Storage.Config;
@@ -121,8 +122,7 @@ public class Voting {
                         Button.Destructive("whitelist-vote-down", "deny")
                 ))
                 .DeleteOnShutdown()
-                .OnSend((String channelID, Long messageID) -> {
-                    request.channelID = channelID;
+                .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
     }
@@ -147,14 +147,14 @@ public class Voting {
     // 2,1 A upvote
     void OnUpVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.WhitelistRequest request = null;
         for(DataStorage.WhitelistRequest candidate : permanentData.whitelistRequests.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -176,14 +176,14 @@ public class Voting {
     // 2.2 A downvote
     void OnDownVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.WhitelistRequest request = null;
         for(DataStorage.WhitelistRequest candidate : permanentData.whitelistRequests.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -204,7 +204,7 @@ public class Voting {
 
     void OnAccept(DataStorage.WhitelistRequest request) {
         // Change the voting message:
-        Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+        Message toBeModified = discord.GetMessage(request.messageID);
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist", "votingAccepted")
                 .SetVariables(whitelist.GetVariables(request))
@@ -212,7 +212,7 @@ public class Voting {
         discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
     }
     void OnDeny(DataStorage.WhitelistRequest request) {
-        Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+        Message toBeModified = discord.GetMessage(request.messageID);
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist", "votingDenied")
                 .SetVariables(whitelist.GetVariables(request))

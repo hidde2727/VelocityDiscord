@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.hidde2727.DiscordPlugin.Discord.*;
+import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
@@ -106,7 +107,7 @@ public class Reason {
         } else if(request.downVotes.size() >= NeededDownvote()) {
             // Try again
             request.reason = null;
-            Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+            Message toBeModified = discord.GetMessage(request.messageID);
             GetVotingMessage(request).Modify(toBeModified);
             return true;
         }
@@ -123,8 +124,7 @@ public class Reason {
                             Button.Destructive("ban-reason-vote-down", "deny")
                     ))
                     .DeleteOnShutdown()
-                    .OnSend((String channelID, Long messageID) -> {
-                        request.channelID = channelID;
+                    .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
         }
@@ -137,8 +137,7 @@ public class Reason {
                             Button.Primary("ban-reason-change", "change")
                     ))
                     .DeleteOnShutdown()
-                    .OnSend((String channelID, Long messageID) -> {
-                        request.channelID = channelID;
+                    .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
         }
@@ -150,8 +149,7 @@ public class Reason {
                         Button.Destructive("ban-reason-vote-down", "deny")
                 ))
                 .DeleteOnShutdown()
-                .OnSend((String channelID, Long messageID) -> {
-                    request.channelID = channelID;
+                .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
     }
@@ -170,19 +168,19 @@ public class Reason {
             banning.OnDecideReason(request);
             return;
         }
-        Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+        Message toBeModified = discord.GetMessage(request.messageID);
         GetVotingMessage(request).Modify(toBeModified);
     }
     void OnChangeButton(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequestsDecided.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -200,7 +198,7 @@ public class Reason {
     }
     void OnReasonPick(ModalInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
@@ -227,14 +225,14 @@ public class Reason {
     // 2,1 A upvote
     void OnUpVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequestsDecided.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -256,14 +254,14 @@ public class Reason {
     // 2.2 A downvote
     void OnDownVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequestsDecided.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -285,7 +283,7 @@ public class Reason {
 
     void OnDecided(DataStorage.BanRequest request) {
         // Change the voting message:
-        Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+        Message toBeModified = discord.GetMessage(request.messageID);
         discord.CreateEmbed()
                 .SetLanguageNamespace("banning", "reasonDecided")
                 .SetVariables(banning.GetVariables(request, true))

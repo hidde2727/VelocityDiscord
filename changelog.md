@@ -1,1 +1,3 @@
-- Velocity server improvement
+- Hopefully less crashes
+- Role checking fixed
+- Fixed messages randomly getting deleted

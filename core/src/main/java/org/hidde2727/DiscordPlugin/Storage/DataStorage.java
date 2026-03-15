@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hidde2727.DiscordPlugin.Logs;
+import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
@@ -96,8 +97,7 @@ public class DataStorage {
         public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
         public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
         // Runtime data:
-        public transient String channelID;
-        public transient Long messageID;
+        public transient MessageID messageID;
     }
     public static class BanRequest {
         public BanRequest() {}
@@ -120,8 +120,7 @@ public class DataStorage {
         public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
         public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
         // Runtime data:
-        public transient String channelID;
-        public transient Long messageID;
+        public transient MessageID messageID;
     }
     public static class Player {
         public static class Punishment {

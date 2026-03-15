@@ -1,7 +1,8 @@
 package org.hidde2727.DiscordPlugin.Discord;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
@@ -26,10 +27,10 @@ public class Discord {
             this.channelId = channelId;
             this.messageId = messageId;
         }
-        String channelId;
-        long messageId;
+        public String channelId;
+        public long messageId;
     };
-    List<MessageID> toDelete = new ArrayList<>();
+    Map<Long, MessageID> toDelete = new HashMap<>();
     String guildId = "";
 
     public Discord(String botToken, String guildId, StringProcessor processor, Language languageConfig) throws Exception {
@@ -44,11 +45,12 @@ public class Discord {
         if(jda.getGuildById(guildId) == null) {
             throw new Exception("Received a guild that does not exist");
         }
+        Logs.info("Running in the '" + jda.getGuildById(guildId).getName() + "' guild");
     }
 
     public void Shutdown() {
         // Delete all the messages marked to be deleted:
-        for(MessageID messageId: toDelete) {
+        for(MessageID messageId: toDelete.values()) {
             try {
                 jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).complete();
             } catch(Exception ignored) { }
@@ -81,10 +83,18 @@ public class Discord {
 
     public boolean GiveUserRole(String userId, String role) {
         Guild guild = jda.getGuildById(guildId);
-        if(guild == null) return false;
+        if(guild == null) {
+            Logs.warn("Failed to find guild '" + guildId + "'");
+            return false;
+        }
         Role guildRole = guild.getRoleById(role);
-        if(guildRole == null) return false;
-        guild.addRoleToMember(guild.getMemberById(userId), guildRole).queue();
+        if(guildRole == null) {
+            Logs.warn("Failed to find role in guild '" + role + "'");
+            return false;
+        }
+        guild.retrieveMemberById(userId).onSuccess((member) -> {
+            guild.addRoleToMember(member, guildRole).queue();
+        }).queue();
         return true;
     }
 
@@ -92,23 +102,37 @@ public class Discord {
         return jda.getTextChannelById(channelID).getMembers();
     }
 
-    public Member GetUserInChannel(String channelID, Long userID) {
-        return jda.getTextChannelById(channelID).getMembers()
-            .stream().filter((Member m) -> m.getIdLong() == userID)
-            .toList().get(0);
+    public void DeleteMessageOnShutdown(MessageID messageID) {
+        toDelete.put(messageID.messageId, messageID);
     }
-
     public void KeepMessageOnShutdown(MessageID messageID) {
-        toDelete.remove(messageID);
+        toDelete.remove(messageID.messageId);
     }
 
+    public Message GetMessage(MessageID messageID) {
+        return jda.getTextChannelById(messageID.channelId).retrieveMessageById(messageID.messageId).complete();
+    }
     public Message GetMessage(String channelID, Long messageID) {
         return jda.getTextChannelById(channelID).retrieveMessageById(messageID).complete();
     }
 
-    // Checks if the user has any of the roles
-    public boolean DoesUserHaveRoleInChannel(String channelID, Long userID, List<String> roles) {
-        for(Role role : GetUserInChannel(channelID, userID).getRoles()) {
+    // Checks if the user has any of the roles in the guild from the config
+    public boolean DoesUserHaveRole(User user, List<String> roles) {
+        if(user == null) {
+            Logs.warn("DoesUserHaveRole called with user==null");
+            return false;
+        }
+        Guild guild = jda.getGuildById(guildId);
+        if(guild == null) {
+            Logs.warn("Could not get the guild '" + guildId + "'");
+            return false;
+        }
+        Member member = guild.retrieveMember(user).complete();
+        if(member == null) {
+            Logs.warn("DoesUserHaveRole could not find member");
+            return false;
+        }
+        for(Role role : member.getRoles()) {
             if(roles.contains(role.getName())) return true;
         }
         return false;

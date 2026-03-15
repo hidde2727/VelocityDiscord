@@ -73,7 +73,7 @@ public class Request {
                     .Send(event, true);
             return;
         }
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             // The user is not allowed to make a request
             discord.CreateEmbed()
                     .SetLanguageNamespace("banning","requestNotAllowed")

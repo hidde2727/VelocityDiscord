@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.hidde2727.DiscordPlugin.Logs;
@@ -29,7 +28,7 @@ public class Embed {
     private StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
     private Map<String, String> translations;
     private List<ActionRow> actionRows = new ArrayList<>();
-    private BiConsumer<String, Long> onSend = null;
+    private Consumer<MessageID> onSend = null;
     private boolean setTimestamp = false;
     private boolean deleteOnShutdown = false;
 
@@ -73,7 +72,7 @@ public class Embed {
         actionRows.add(row);
         return this;
     }
-    public Embed OnSend(BiConsumer<String, Long> onSend) {
+    public Embed OnSend(Consumer<MessageID> onSend) {
         this.onSend = onSend;
         return this;
     }
@@ -100,9 +99,10 @@ public class Embed {
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
             onSuccess = (message) -> {
-                discord.toDelete.add(new MessageID(message.getChannelId(), message.getIdLong()));
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
-                    onSend.accept(message.getChannelId(), message.getIdLong());
+                    onSend.accept(messageID);
                 }
             };
         }
@@ -121,9 +121,10 @@ public class Embed {
         if(deleteOnShutdown && !ephermal) {
             onSuccess = (message) -> {
                 Interaction interaction = message.getInteraction();
-                discord.toDelete.add(new MessageID(interaction.getChannelId(), interaction.getIdLong()));
+                MessageID messageID = new MessageID(interaction.getChannelId(), message.getIdLong());
+                discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
-                    onSend.accept(interaction.getChannelId(), interaction.getIdLong());
+                    onSend.accept(messageID);
                 }
             };
         }
@@ -141,9 +142,12 @@ public class Embed {
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
             onSuccess = (messageParam) -> {
-                discord.toDelete.add(new MessageID(messageParam.getChannelId(), messageParam.getIdLong()));
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
-                    onSend.accept(messageParam.getChannelId(), messageParam.getIdLong());
+                    if(onSend != null) {
+                        onSend.accept(messageID);
+                    }
                 }
             };
         }

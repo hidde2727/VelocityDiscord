@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
 import org.hidde2727.DiscordPlugin.Discord.*;
+import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
@@ -108,7 +109,7 @@ public class Punishment {
         if(request.downVotes.size() >= NeededDownvote()) {
             // Try again to get to a solution
             request.punishment = Config.Banning.PunishmentPicker.PunishmentType.Null;
-            Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+            Message toBeModified = discord.GetMessage(request.messageID);
             GetVotingMessage(request).Modify(toBeModified);
             return true;
         }
@@ -126,8 +127,7 @@ public class Punishment {
                             ))
                     )))
                     .DeleteOnShutdown()
-                    .OnSend((String channelID, Long messageID) -> {
-                        request.channelID = channelID;
+                    .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
         }
@@ -139,8 +139,7 @@ public class Punishment {
                         Button.Destructive("ban-punishment-vote-down", "deny")
                 ))
                 .DeleteOnShutdown()
-                .OnSend((String channelID, Long messageID) -> {
-                    request.channelID = channelID;
+                .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
     }
@@ -166,7 +165,7 @@ public class Punishment {
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequests.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -195,14 +194,14 @@ public class Punishment {
     // 2,1 A upvote
     void OnUpVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequests.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -224,14 +223,14 @@ public class Punishment {
     // 2.2 A downvote
     void OnDownVote(ButtonInteractionEvent event) {
         // Check if the user has the permissions to vote:
-        if(config.checkRoles && !discord.DoesUserHaveRoleInChannel(config.channel, event.getUser().getIdLong(), config.allowedRoles)) {
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
             SendVotingNotAllowedEmbed(event);
             return;
         }
         // Find the request:
         DataStorage.BanRequest request = null;
         for(DataStorage.BanRequest candidate : permanentData.banRequests.values()) {
-            if(candidate.messageID == event.getMessageIdLong()) {
+            if(candidate.messageID.messageId == event.getMessageIdLong()) {
                 request = candidate;
                 break;
             }
@@ -252,7 +251,7 @@ public class Punishment {
 
     void OnDecided(DataStorage.BanRequest request) {
         // Change the voting message:
-        Message toBeModified = discord.GetMessage(request.channelID, request.messageID);
+        Message toBeModified = discord.GetMessage(request.messageID);
         discord.CreateEmbed()
                 .SetLanguageNamespace("banning", "punishmentDecided")
                 .SetVariables(banning.GetVariables(request, false))

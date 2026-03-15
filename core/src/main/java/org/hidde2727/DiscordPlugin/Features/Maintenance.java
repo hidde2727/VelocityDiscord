@@ -146,9 +146,9 @@ public class Maintenance extends ListenerAdapter {
             }
         }
         if(config.command.checkRoles) {
-            if(!discord.DoesUserHaveRoleInChannel(event.getChannelId(), event.getUser().getIdLong(), config.command.allowedRoles)) {
+            if(!discord.DoesUserHaveRole(event.getUser(), config.command.allowedRoles)) {
                 discord.CreateEmbed()
-                    .SetLanguageNamespace("maintenance", "notALlowed")
+                    .SetLanguageNamespace("maintenance", "notAllowed")
                     .SetVariables(GetVariables(event.getUser()))
                     .Send(event, true);
                 return;
