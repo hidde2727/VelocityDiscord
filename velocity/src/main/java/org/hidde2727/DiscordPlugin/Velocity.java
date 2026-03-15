@@ -72,6 +72,8 @@ public class Velocity implements Implementation {
     }
     @Subscribe
     public void OnPlayerConnect(ServerConnectedEvent event) {
+        if(event.getPreviousServer().isPresent()) return;// Player is changing internal server, do nothing
+
         Player player = event.getPlayer();
         plugin.OnPlayerConnect(
             player.getUsername(), 

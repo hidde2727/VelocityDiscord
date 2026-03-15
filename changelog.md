@@ -1,1 +1,1 @@
-- Default config clarifications
+- Velocity server improvement
