@@ -1,11 +1,12 @@
 ## Features
 - Works on both Velocity proxies and Fabric servers
-- Highly configurable (see [config.yaml](/core/src/main/resources/config.yml) and [messages.properties](/core/src/main/resources/messages.properties) for all the things you can mess with)
+- Highly configurable (see [config.yaml](/core/src/main/resources/config.yml) and [language.yml](/core/src/main/resources/language.yml) for all the things you can mess with)
 - Custom discord messages on server start and stop
 - Custom discord messages when players connect and disconnect
 - Custom discord message when players message in game
 - Custom minecraft messages when user message on discord
 - Whitelisting feature to people make whitelist requests via discord
+- Banning feature to punish those that are annoying (kick them multiple times, ban them permanently/for a certain duration)
 
 
 
@@ -29,9 +30,11 @@ See [discord.com/developers/docs/quick-start/getting-started](https://discord.co
 ![A photo of the discord panel bots section](/docs/discord-reset-token.png)
 9. Copy your bot token and paste it into the botToken field of your config
 ![A photo of the config.yaml file](/docs/config.png)
-10. Now use the sidebar to go to installation and configure the following:
+10. Again in the bots section, scroll down to enable the 'Message' gateway intent
+![A photo of the discord panel bots section with the 'Message' gateway intent enabled](/docs/discord-enable-gateway.png)
+11. Now use the sidebar to go to installation and configure the following:
 ![A photo of the install screen. User install disabled, scopes=bot, permissions=Send messages, Bypass slow mode, Manage roles and Add reactions](/docs/discord-install.png)
-11. Copy the url provided by discord of the previous screen and visit it, you can now invite it to the server you want the bot to send messages to
+12. Copy the url provided by discord of the previous screen and visit it, you can now invite it to the server you want the bot to send messages to
 
 Now we want to setup the features, you can use the following tutorial to get a channel ID:
 [support.discord.com](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID)

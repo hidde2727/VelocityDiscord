@@ -319,15 +319,15 @@ embeds:
         color: "RED"
 
       publicDenied:
-        title: "------------[Ban denied]------------"
-        description: "**${PLAYER_NAME}** did not get banned\n(Requested by <@${DISCORD_UUID}>)"
+        title: "------------[Punishment denied]------------"
+        description: "**${PLAYER_NAME}** did not get a ${PUNISHMENT}\n(Requested by <@${DISCORD_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
       publicAccepted:
-        title: "------------[Ban accepted]------------"
+        title: "------------[Punishment accepted]------------"
         description: "**${PLAYER_NAME}** got a ${PUNISHMENT} because '${REASON}'\n(Requested by <@${DISCORD_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
         footer:

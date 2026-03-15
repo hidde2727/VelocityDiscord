@@ -1,3 +1,1 @@
-- Changed language file from messages.properties to language.yml
-- Added punishments
-- Reworked whitelisting
+Slight message changes
