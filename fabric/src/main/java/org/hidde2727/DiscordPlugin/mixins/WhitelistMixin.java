@@ -1,16 +1,16 @@
 package org.hidde2727.DiscordPlugin.mixins;
 
-import net.minecraft.server.PlayerConfigEntry;
+import net.minecraft.server.players.NameAndId;
 import org.hidde2727.DiscordPlugin.Fabric;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(net.minecraft.server.dedicated.DedicatedPlayerManager.class)
+@Mixin(net.minecraft.server.dedicated.DedicatedPlayerList.class)
 public class WhitelistMixin {
-    @Inject(method="isWhitelisted", at=@At(value="HEAD"), cancellable=true)
-    void isAllowed(PlayerConfigEntry playerConfigEntry, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method="isWhiteListed", at=@At(value="HEAD"), cancellable=true)
+    void isAllowed(NameAndId playerConfigEntry, CallbackInfoReturnable<Boolean> cir) {
         boolean letThrough = Fabric.plugin.OnPlayerPreLogin(
                 playerConfigEntry.name(),
                 playerConfigEntry.id().toString().replaceAll("-", "")

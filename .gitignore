@@ -35,3 +35,6 @@ fabric/run
 
 # Secrets
 secrets.properties
+
+# Devbox
+.devbox

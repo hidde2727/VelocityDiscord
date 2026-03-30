@@ -5,11 +5,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.network.message.SignedMessage;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerPlayer;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,25 +41,25 @@ public class Fabric implements ModInitializer, Implementation {
     public void OnServerStop(MinecraftServer server) {
         plugin.OnServerStop();
     }
-    public void OnPlayerMessage(SignedMessage message, ServerPlayerEntity player, MessageType.Parameters params) {
+    public void OnPlayerMessage(PlayerChatMessage message, ServerPlayer player, ChatType.Bound params) {
         plugin.OnPlayerMessage(
                 "fabric",
-                player.getStringifiedName(),
-                player.getUuidAsString(),
-                message.getSignedContent()
+                player.getPlainTextName(),
+                player.getStringUUID(),
+                message.signedContent()
         );
     }
     // OnPlayerPreLogin handled by FabricMixin
-    public void OnPlayerConnect(ServerPlayerEntity player) {
+    public void OnPlayerConnect(ServerPlayer player) {
         plugin.OnPlayerConnect(
-                player.getStringifiedName(),
-                player.getUuidAsString()
+                player.getPlainTextName(),
+                player.getStringUUID()
         );
     }
-    public void OnPlayerDisconnect(ServerPlayerEntity player) {
+    public void OnPlayerDisconnect(ServerPlayer player) {
         plugin.OnPlayerDisconnect(
-                player.getStringifiedName(),
-                player.getUuidAsString()
+                player.getPlainTextName(),
+                player.getStringUUID()
         );
     }
 
@@ -79,13 +79,13 @@ public class Fabric implements ModInitializer, Implementation {
         return FabricLoader.getInstance().getConfigDir().resolve("discordio");
     }
     public boolean IsOnlineMode() {
-        return server.isOnlineMode();
+        return server.usesAuthentication();
     }
     public void SendMessage(String serverID, String message) {
         if(!serverID.equals("fabric")) {
             Logs.error("Cannot send a message to a server other than the server with the id 'fabric' (check the onMessage event in your config.yml, it may only contain fabric)");
             return;
         }
-        server.sendMessage(Text.of(message));
+        server.sendSystemMessage(Component.nullToEmpty(message));
     }
 }
