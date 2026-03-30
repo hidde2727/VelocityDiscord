@@ -75,7 +75,7 @@ modrinth {
     versionNumber = "${version}"
     versionName = "Discordio - Fabric - ${version}"
     versionType = "${modrinth_version_type}"
-    uploadFile = build
+    uploadFile = shadowJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['fabric']
     changelog = "${rootProject.ext.modrinth_changelog}"

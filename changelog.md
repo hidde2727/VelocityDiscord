@@ -1,3 +1,1 @@
-- Hopefully less crashes
-- Role checking fixed
-- Fixed messages randomly getting deleted
+- Upgraded to minecraft 26.1
