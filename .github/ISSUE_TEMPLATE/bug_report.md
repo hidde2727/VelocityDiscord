@@ -29,7 +29,16 @@ If the application crashed, please provide a stack trace
 
 </details>
 
+**Config.yml**
+Your config.yml file (you can redact the channel ID's and role ID's. **You must redact your bot's toke**)
+<details>
+<summary>config.yml</summary>
+
+!Put your config here!
+
+</details>
+
 **System info**
-(Operating system) Linux/Windows/Max
+(Operating system) Linux/Windows/Mac
 (Server type) Fabric/Velocity
 (Other mods/plugins present) ...
