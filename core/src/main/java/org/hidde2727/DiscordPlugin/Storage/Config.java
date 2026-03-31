@@ -69,11 +69,11 @@ public class Config {
         public static class OnAccept {
             public boolean enabled = false;
             public String channel = "";
-        };
+        }
         public static class OnDeny {
             public boolean enabled = false;
             public String channel = "";
-        };
+        }
         public static class Request {
             public boolean enabled = false;
             public String channel = "";
@@ -105,7 +105,7 @@ public class Config {
         public static class OnDeny {
             public boolean enabled = false;
             public String channel = "";
-        };
+        }
         public static class Request {
             public boolean enabled = false;
             public String channel = "";
@@ -120,6 +120,7 @@ public class Config {
                 PermBan,
                 Ban,
                 Kick,
+                NoUnban
                 // Mute,
                 // Warn,
             }
@@ -151,6 +152,35 @@ public class Config {
         public Request request = new Request();
         public PunishmentPicker punishment = new PunishmentPicker();
         public ReasonPicker reason = new ReasonPicker();
+    }
+    public static class Unban {
+        public static class OnAccept {
+            public boolean enabled = false;
+            public String channel = "";
+        }
+        public static class OnDeny {
+            public boolean enabled = false;
+            public String channel = "";
+        }
+        public static class Request {
+            public boolean enabled = false;
+            public String channel = "";
+            public boolean checkRoles = false;
+            public List<String> allowedRoles = new ArrayList<>();
+        }
+        public static class Voting {
+            public boolean enabled = false;
+            public String channel = "";
+            public boolean checkRoles = false;
+            public List<String> allowedRoles = new ArrayList<>();
+            public String acceptVotes = "50%";
+            public String denyVotes = "1";
+        }
+        public boolean enabled = false;
+        public OnAccept onAccept = new OnAccept();
+        public OnDeny onDeny = new OnDeny();
+        public Request request = new Request();
+        public Voting voting = new Voting();
     }
     public static class Maintenance {
 
@@ -185,5 +215,6 @@ public class Config {
     public boolean connectAccounts = true;
     public Whitelist whitelist = new Whitelist();
     public Banning banning = new Banning();
+    public Unban unban = new Unban();
     public Maintenance maintenance = new Maintenance();
 }

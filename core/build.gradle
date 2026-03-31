@@ -7,12 +7,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.yaml:snakeyaml:2.5")
-    implementation("net.dv8tion:JDA:6.4.0") {
+    implementation("org.yaml:snakeyaml:${snakeyaml_version}")
+    implementation("net.dv8tion:JDA:${jda_version}") {
         exclude module: 'opus-java'
         exclude module: 'tink'
     }
-    implementation("org.json:json:20251224")
+    implementation("org.json:json:${json_version}")
 }
 
 java {

@@ -8,6 +8,7 @@ import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Discord.TextField;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Storage.Config;
+import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,25 +47,7 @@ public class Request {
     }
     // 2. Someone pressed the button of 1, send modal to get their username
     void OnRequest(ButtonInteractionEvent event) {
-        if(
-            whitelist.HasRequest(event.getUser().getId()) ||
-            (whitelist.players.ConnectAccounts() && whitelist.IsWhitelistedByDiscord(event.getUser().getId()))
-        ) {
-            // The user already has a request
-            discord.CreateEmbed()
-                    .SetLanguageNamespace("whitelist","alreadyWhitelisted")
-                    .SetVariables(whitelist.GetVariables(event.getUser()))
-                    .Send(event, true);
-            return;
-        }
-        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
-            // The user is not allowed to make a request
-            discord.CreateEmbed()
-                    .SetLanguageNamespace("whitelist","requestNotAllowed")
-                    .SetVariables(whitelist.GetVariables(event.getUser()))
-                    .Send(event, true);
-            return;
-        }
+        if(!CheckUser(event)) return;
         discord.CreateModal("whitelist-request")
                 .SetLanguageNamespace("whitelist", "request")
                 .SetVariables(whitelist.GetVariables(event.getUser()))
@@ -88,7 +71,8 @@ public class Request {
     }
     // The request was canceled
     void OnCancel(ButtonInteractionEvent event) {
-        // awaitingConfirmation.remove(event.getUser().getId());
+        awaitingConfirmation.remove(event.getUser().getId());
+        event.getMessage().delete().queue();
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist", "requestCanceled")
                 .SetVariables(whitelist.GetVariables(event.getUser()))
@@ -96,21 +80,23 @@ public class Request {
     }
     // 4 Either instant whitelist or get the request approved by admins:
     void OnConfirmed(ButtonInteractionEvent event) {
+        if(!CheckUser(event)) return;
         event.getMessage().delete().queue();
+
         String userId = event.getUser().getId();
-        if(
-            whitelist.HasRequest(userId) ||
-            (whitelist.players.ConnectAccounts() && whitelist.IsWhitelistedByDiscord(userId))
-        ) return;
         String minecraftName = awaitingConfirmation.get(userId);
+        if(minecraftName == null) {
+            Logs.warn("Whitelist.Request.OnConfirmed got called for a user that does not have a request");
+            return;
+        }
         awaitingConfirmation.remove(userId);
 
+        event.deferReply(true).queue();
         if(whitelist.players.UseMinecraftUUID()) {
             // Get the players UUID from Mojang:
-            event.deferReply(true);
             whitelist.GetMinecraftUUID(minecraftName).handleAsync((uuid, error) -> {
                 if(error != null) {
-                    event.deferEdit();
+                    event.deferEdit().queue();
                     return false;
                 }
                 if(uuid == null) {
@@ -131,6 +117,19 @@ public class Request {
     }
 
     void OnConfirmed(ButtonInteractionEvent event, String minecraftName, String minecraftUUID) {
+        DataStorage.Player player = whitelist.players.GetPlayer(minecraftName, minecraftUUID);
+        if(player != null) {
+            if(player.whitelisted) {
+                discord.CreateEmbed()
+                        .SetLanguageNamespace("whitelist", "alreadyWhitelisted")
+                        .SetVariable("PLAYER_NAME", minecraftName)
+                        .SetVariable("PLAYER_UUID", minecraftUUID)
+                        .SetVariable("PLAYER_KEY", whitelist.players.GetMinecraftKey(minecraftName, minecraftUUID))
+                        .SetVariables(whitelist.GetVariables(event.getUser()))
+                        .ModifyHook(event.getHook());
+                return;
+            }
+        }
         whitelist.AddRequest(minecraftName, minecraftUUID, event.getUser().getId());
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist", "requestConfirmed")
@@ -138,6 +137,33 @@ public class Request {
                 .SetVariable("PLAYER_UUID", minecraftUUID)
                 .SetVariable("PLAYER_KEY", whitelist.players.GetMinecraftKey(minecraftName, minecraftUUID))
                 .SetVariables(whitelist.GetVariables(event.getUser()))
-                .Send(event, true);
+                .ModifyHook(event.getHook());
+    }
+
+    private boolean CheckUser(ButtonInteractionEvent event) {
+        if(!config.enabled) {
+            event.deferEdit().queue();
+            return false;
+        }
+        if(
+                whitelist.HasRequest(event.getUser().getId()) ||
+                (whitelist.players.ConnectAccounts() && whitelist.IsWhitelistedByDiscord(event.getUser().getId()))
+        ) {
+            // The user already has a request
+            discord.CreateEmbed()
+                    .SetLanguageNamespace("whitelist","alreadyWhitelisted")
+                    .SetVariables(whitelist.GetVariables(event.getUser()))
+                    .Send(event, true);
+            return false;
+        }
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
+            // The user is not allowed to make a request
+            discord.CreateEmbed()
+                    .SetLanguageNamespace("whitelist","requestNotAllowed")
+                    .SetVariables(whitelist.GetVariables(event.getUser()))
+                    .Send(event, true);
+            return false;
+        }
+        return true;
     }
 }

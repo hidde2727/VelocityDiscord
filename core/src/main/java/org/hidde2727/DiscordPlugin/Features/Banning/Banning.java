@@ -13,8 +13,8 @@ import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player;
 import org.hidde2727.DiscordPlugin.Storage.Config.Banning.PunishmentPicker.PunishmentType;
+import org.jetbrains.annotations.NotNull;
 
-import java.time.OffsetTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +37,8 @@ public class Banning extends ListenerAdapter {
 
         if(!config.enabled) return;
         if(config.giveRoleOnBan && !players.ConnectAccounts()) {
-            Logs.error("Cannot give a banned player a role if connectAccounts=false");
-            config.enabled = false;
-            return;
+            Logs.error("Cannot give a banned player a role if connectAccounts=false, falling back to not giving a role on ban");
+            config.giveRoleOnBan = false;
         }
 
         this.request = new Request(this);
@@ -147,36 +146,43 @@ public class Banning extends ListenerAdapter {
      ***********************************************************************/
 
     public void OnServerStart() {
+        if(!config.enabled) return;
+
         request.SendRequestEmbed();
         punishment.SendVotingMessages();
         reason.SendVotingMessages();
     }
 
     public boolean OnPlayerPreLogin(String playerName, String playerUUID) {
+        if(!config.enabled) return true;
+
         String minecraftKey = players.GetMinecraftKey(playerName, playerUUID);
         Player player = players.GetPlayer(minecraftKey);
         if(player == null) return false;
+        players.RecheckPunishments(player);
         for(Player.Punishment playerPunishment : player.punishments) {
             if(playerPunishment.punishment == PunishmentType.PermBan) return false;
             if(playerPunishment.punishment == PunishmentType.Kick) {
                 playerPunishment.until = playerPunishment.until.minusSeconds(1);
-                if(playerPunishment.until.isBefore(OffsetTime.MIN.plusSeconds(1))) player.punishments.remove(playerPunishment);
                 return false;
             }
-            if(playerPunishment.until.isBefore(OffsetTime.now())) player.punishments.remove(playerPunishment);
-            else if(playerPunishment.punishment == PunishmentType.Ban) return false;
+            if(playerPunishment.punishment == PunishmentType.Ban) return false;
         }
-        return player.whitelisted;
+        return true;
     }
 
     @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
+        if(!config.enabled) return;
+
         if(event.getComponentId().equals("ban-punishment-selector")) {
             punishment.OnPunishmentPick(event);
         }
     }
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if(!config.enabled) return;
+
         if (event.getComponentId().equals("ban-request-button")) {
             request.OnRequest(event);
         }
@@ -203,7 +209,9 @@ public class Banning extends ListenerAdapter {
         }
     }
     @Override
-    public void onModalInteraction(ModalInteractionEvent event) {
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
+        if(!config.enabled) return;
+
         if (event.getModalId().equals("ban-request")) {
             request.OnModalFinish(event);
         } else if(event.getModalId().startsWith("banning-reason-change-")) {

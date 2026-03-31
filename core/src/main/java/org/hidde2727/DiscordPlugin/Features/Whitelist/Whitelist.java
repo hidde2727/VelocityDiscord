@@ -14,6 +14,7 @@ import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage.WhitelistRequest;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.entities.User;
@@ -39,9 +40,8 @@ public class Whitelist extends ListenerAdapter {
 
         if(!config.enabled) return;
         if(config.giveRoleOnWhitelist && !players.ConnectAccounts()) {
-            Logs.error("Cannot give a whitelisted player a role if connectAccounts=false");
-            config.enabled = false;
-            return;
+            Logs.error("Cannot give a whitelisted player a role if connectAccounts=false, falling back to not giving a role on ban");
+            config.giveRoleOnWhitelist = false;
         }
 
         this.request = new Request(this);
@@ -135,18 +135,24 @@ public class Whitelist extends ListenerAdapter {
      ***********************************************************************/
 
     public void OnServerStart() {
+        if(!config.enabled) return;
+
         request.SendRequestEmbed();
         voting.SendVotingMessages();
     }
 
     public boolean OnPlayerPreLogin(String playerName, String playerUUID) {
+        if(!config.enabled) return true;
+
         String minecraftKey = players.GetMinecraftKey(playerName, playerUUID);
         Player player = players.GetPlayer(minecraftKey);
         return player != null && player.whitelisted;
     }
     
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if(!config.enabled) return;
+
         if (event.getComponentId().equals("whitelist-request-button")) {
             request.OnRequest(event);
         }
@@ -164,7 +170,9 @@ public class Whitelist extends ListenerAdapter {
         }
     }
     @Override
-    public void onModalInteraction(ModalInteractionEvent event) {
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
+        if(!config.enabled) return;
+
         if (event.getModalId().equals("whitelist-request")) {
             request.OnModalFinish(event);
         }

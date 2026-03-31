@@ -1,5 +1,6 @@
 package org.hidde2727.DiscordPlugin;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hidde2727.DiscordPlugin.Storage.Config;
@@ -7,11 +8,13 @@ import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player;
 
 public class PlayerManager {
+    DiscordPlugin plugin;
     DataStorage storage;
     Config config;
-    PlayerManager(Config config, DataStorage storage, boolean isServerOnlineMode) {
-        this.storage = storage;
-        this.config = config;
+    PlayerManager(DiscordPlugin plugin) {
+        this.plugin = plugin;
+        this.storage = plugin.dataStorage;
+        this.config = plugin.config;
 
         if(storage.players.isEmpty() && storage.whitelistRequests.isEmpty()) {
             this.storage.minecraftUUIDKey = config.useUUID;
@@ -28,8 +31,9 @@ public class PlayerManager {
             }
         }
 
-        if(config.useUUID && !isServerOnlineMode) {
+        if(config.useUUID && !plugin.implementation.IsOnlineMode()) {
             Logs.error("Server can't be in offline mode while config.useUUID is set to true. Disabling this plugin");
+            plugin.disabled = true;
         }
     }
 
@@ -66,5 +70,35 @@ public class PlayerManager {
             if(player.discordUUID.equals(discordUUID)) return player;
         }
         return null;
+    }
+
+    public void RemovePlayerRoleIfNoPunishments(Player player) {
+        if(!player.punishments.isEmpty()) return;
+        if(!config.banning.giveRoleOnBan) return;
+        plugin.discord.RemoveUserRole(player.discordUUID, config.banning.bannedRoleID);
+    }
+    public void RecheckPunishments(Player player) {
+        boolean removedPunishment = false;
+        for(Player.Punishment punishment : player.punishments) {
+            if(punishment.punishment == Config.Banning.PunishmentPicker.PunishmentType.PermBan) continue;
+            if(punishment.punishment == Config.Banning.PunishmentPicker.PunishmentType.Kick) {
+                if(punishment.until.isBefore(OffsetDateTime.MIN.plusSeconds(1))) {
+                    player.punishments.remove(punishment);
+                    removedPunishment = true;
+                }
+            }
+        }
+        if(!removedPunishment) return;
+        RemovePlayerRoleIfNoPunishments(player);
+    }
+    public Player.Punishment GetPunishment(Player player, Config.Banning.PunishmentPicker.PunishmentType type) {
+        RecheckPunishments(player);
+        for(Player.Punishment punishment : player.punishments) {
+            if(punishment.punishment == type) return punishment;
+        }
+        return null;
+    }
+    public boolean HasPunishment(Player player, Config.Banning.PunishmentPicker.PunishmentType type) {
+        return GetPunishment(player, type) != null;
     }
 }

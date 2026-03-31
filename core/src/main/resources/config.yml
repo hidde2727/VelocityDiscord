@@ -140,10 +140,37 @@ banning:
       "kick 3x":
         type: Kick
         duration: 3
+      "No unban 2h":
+        type: NoUnban
+        duration: 7200
   reason:
     # If disabled, a request will keep the reason of the request
     enabled: true
     channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+    acceptVotes: "50%"
+    denyVotes: "1"
+
+# Unbanning via discord
+unban:
+  enabled: false
+
+  onAccept:
+    enabled: true
+    channel: "id..."
+  onDeny:
+    enabled: true
+    channel: "id..."
+  request:
+    enabled: true
+    channel: "id..."
+    checkRoles: false
+    allowedRoles: []
+  voting:
+    # If disabled, a request will imply immediate unban
+    enabled: true
+    channel: "id.."
     checkRoles: false
     allowedRoles: []
     acceptVotes: "50%"

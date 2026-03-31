@@ -1,5 +1,6 @@
 package org.hidde2727.DiscordPlugin.Storage;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,6 @@ import org.yaml.snakeyaml.representer.Representer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,6 +122,25 @@ public class DataStorage {
         // Runtime data:
         public transient MessageID messageID;
     }
+    public static class UnbanRequest {
+        public UnbanRequest() {}
+        public UnbanRequest(String byDiscordUUID, String reason, Player player, String minecraftKey, Punishment forPunishment) {
+            this.byDiscordUUID = byDiscordUUID;
+            this.reason = reason;
+            this.player = player;
+            this.key = minecraftKey;
+            this.forPunishment = forPunishment;
+        }
+        public String byDiscordUUID;
+        public String reason;
+        public Player player;
+        public Punishment forPunishment;
+        public String key;
+        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
+        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
+        // Runtime data:
+        public transient MessageID messageID;
+    }
     public static class Player {
         public static class Punishment {
             public Punishment() {}
@@ -129,9 +148,9 @@ public class DataStorage {
                 this.punishment = punishment;
                 this.punishmentName = punishmentName;
                 if(punishment == PunishmentType.Kick) {
-                    this.until = OffsetTime.MIN.plusSeconds(duration+1).minusNanos(1);
+                    this.until = OffsetDateTime.MIN.plusSeconds(duration+1).minusNanos(1);
                 } else {
-                    this.until = OffsetTime.now().plusSeconds(duration);
+                    this.until = OffsetDateTime.now().plusSeconds(duration);
                 }
                 this.reason = reason;
             }
@@ -139,7 +158,7 @@ public class DataStorage {
             // These are for snakeyaml parsing
             public String snakeyamlGetUntil() { 
                 try {
-                    return until.format(DateTimeFormatter.ISO_OFFSET_TIME);
+                    return until.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                 } catch(Exception exc) {
                     Logs.error("Failed to get the until property for snakeyaml because: " + exc.getMessage());
                     return "ERROR_GETTING_ISO_OFFSET_TIME";
@@ -147,7 +166,7 @@ public class DataStorage {
             }
             public void snakeyamlSetUntil(String str) {
                 try {
-                    until = OffsetTime.parse(str, DateTimeFormatter.ISO_OFFSET_TIME);
+                    until = OffsetDateTime.parse(str, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                 } catch(Exception exc) {
                     Logs.error("Failed to set until with snakeyaml because: " + exc.getMessage());
                 }
@@ -155,7 +174,7 @@ public class DataStorage {
 
             public PunishmentType punishment = PunishmentType.Null;
             public String punishmentName = "";
-            public transient OffsetTime until = OffsetTime.now();
+            public transient OffsetDateTime until = OffsetDateTime.now();
             public String reason = "";
         }
         public Player() {}
@@ -191,6 +210,7 @@ public class DataStorage {
     public Map<String, BanRequest> banRequests = new HashMap<>();
     // Requests where the punishment has been decided:
     public Map<String, BanRequest> banRequestsDecided = new HashMap<>();
+    public Map<String, UnbanRequest> unbanRequests = new HashMap<>();
     // Minecraft name/UUID, to registered player
     public Map<String, Player> players = new HashMap<>();
 }

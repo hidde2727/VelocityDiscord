@@ -29,9 +29,9 @@ public class Discord {
         }
         public String channelId;
         public long messageId;
-    };
+    }
     Map<Long, MessageID> toDelete = new HashMap<>();
-    String guildId = "";
+    String guildId;
 
     public Discord(String botToken, String guildId, StringProcessor processor, Language languageConfig) throws Exception {
         this.languageConfig = languageConfig;
@@ -94,6 +94,22 @@ public class Discord {
         }
         guild.retrieveMemberById(userId).onSuccess((member) -> {
             guild.addRoleToMember(member, guildRole).queue();
+        }).queue();
+        return true;
+    }
+    public boolean RemoveUserRole(String userId, String role) {
+        Guild guild = jda.getGuildById(guildId);
+        if(guild == null) {
+            Logs.warn("Failed to find guild '" + guildId + "'");
+            return false;
+        }
+        Role guildRole = guild.getRoleById(role);
+        if(guildRole == null) {
+            Logs.warn("Failed to find role in guild '" + role + "'");
+            return false;
+        }
+        guild.retrieveMemberById(userId).onSuccess((member) -> {
+            guild.removeRoleFromMember(member, guildRole).queue();
         }).queue();
         return true;
     }

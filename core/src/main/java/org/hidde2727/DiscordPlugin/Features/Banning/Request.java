@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// First part of the whitelisting process, a whitelist request
+// First part of the banning process, a ban request
 public class Request {
     Discord discord;
     Banning banning;
@@ -65,22 +65,8 @@ public class Request {
     }
     // 2. Someone pressed the button of 1, send modal to get the user they want to see punished
     void OnRequest(ButtonInteractionEvent event) {
-        if(banning.HasRequest(event.getUser().getId())) {
-            // The user already has a request
-            discord.CreateEmbed()
-                    .SetLanguageNamespace("banning","alreadyRequested")
-                    .SetVariables(banning.GetVariables(event.getUser()))
-                    .Send(event, true);
-            return;
-        }
-        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
-            // The user is not allowed to make a request
-            discord.CreateEmbed()
-                    .SetLanguageNamespace("banning","requestNotAllowed")
-                    .SetVariables(banning.GetVariables(event.getUser()))
-                    .Send(event, true);
-            return;
-        }
+        if(!CheckUser(event)) return;
+
         Modal modal = discord.CreateModal("ban-request")
                 .SetLanguageNamespace("banning", "request")
                 .SetVariables(banning.GetVariables(event.getUser()));
@@ -116,7 +102,7 @@ public class Request {
                 return;// Ignore the request, as the user does not exist for us
             }
         } else {
-            String minecraftKey = event.getValue("minecraft-user").getAsString();
+            String minecraftKey = event.getValue("minecraft-user").getAsStringList().get(0);
             player = banning.GetPlayerByKey(minecraftKey);
         }
         awaitingConfirmation.put(event.getUser().getId(), new AwaitingConfirmation(player, reason));
@@ -132,7 +118,8 @@ public class Request {
     }
     // The request was canceled
     void OnCancel(ButtonInteractionEvent event) {
-        // awaitingConfirmation.remove(event.getUser().getId());
+        awaitingConfirmation.remove(event.getUser().getId());
+        event.getMessage().delete().queue();
         discord.CreateEmbed()
                 .SetLanguageNamespace("banning", "requestCanceled")
                 .SetVariables(banning.GetVariables(event.getUser()))
@@ -140,10 +127,14 @@ public class Request {
     }
     // 4 Forward the request to banning
     void OnConfirmed(ButtonInteractionEvent event) {
+        if(!CheckUser(event)) return;
         event.getMessage().delete().queue();
         String userId = event.getUser().getId();
-        if(banning.HasRequest(userId)) return;
         AwaitingConfirmation request = awaitingConfirmation.get(userId);
+        if(request == null) {
+            Logs.warn("Banning.Request.OnConfirmed got called for a user that does not have a request");
+            return;
+        }
         awaitingConfirmation.remove(userId);
 
         banning.AddRequest(event.getUser().getId(), request.player, request.reason);
@@ -152,5 +143,29 @@ public class Request {
                 .SetVariable("REASON", request.reason)
                 .SetVariables(banning.GetVariables(request.player))
                 .Send(event, true);
+    }
+
+    private boolean CheckUser(ButtonInteractionEvent event) {
+        if(!config.enabled) {
+            event.deferEdit().queue();
+            return false;
+        }
+        if(banning.HasRequest(event.getUser().getId())) {
+            // The user already has a request
+            discord.CreateEmbed()
+                    .SetLanguageNamespace("banning","alreadyRequested")
+                    .SetVariables(banning.GetVariables(event.getUser()))
+                    .Send(event, true);
+            return false;
+        }
+        if(config.checkRoles && !discord.DoesUserHaveRole(event.getUser(), config.allowedRoles)) {
+            // The user is not allowed to make a request
+            discord.CreateEmbed()
+                    .SetLanguageNamespace("banning","requestNotAllowed")
+                    .SetVariables(banning.GetVariables(event.getUser()))
+                    .Send(event, true);
+            return false;
+        }
+        return true;
     }
 }

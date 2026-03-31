@@ -15,7 +15,7 @@ public class SelectMenu implements ActionRowItem {
         Channel,
         Role,
         Custom
-    };
+    }
     String id;
     String localizationKey;
     Type type;
@@ -63,8 +63,8 @@ public class SelectMenu implements ActionRowItem {
             StringSelectMenu.Builder menu = StringSelectMenu.create(id);
             for(Map.Entry<String, String> entry : options.entrySet()) {
                 menu.addOption(
-                    entry.getKey(),
-                    entry.getValue()
+                    entry.getValue(),
+                    entry.getKey()
                 );
             }
             return menu.setMaxValues(1).setMinValues(1).setRequired(true).build();

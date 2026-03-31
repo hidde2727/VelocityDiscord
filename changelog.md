@@ -1,1 +1,2 @@
-- Upgraded to minecraft 26.1
+- Added unban feature
+- Language file changes

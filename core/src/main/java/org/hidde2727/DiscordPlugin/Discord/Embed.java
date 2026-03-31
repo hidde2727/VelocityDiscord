@@ -23,11 +23,11 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public class Embed {
-    private Discord discord;
+    private final Discord discord;
     private StringProcessor processor;
-    private StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
+    private final StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
     private Map<String, String> translations;
-    private List<ActionRow> actionRows = new ArrayList<>();
+    private final List<ActionRow> actionRows = new ArrayList<>();
     private Consumer<MessageID> onSend = null;
     private boolean setTimestamp = false;
     private boolean deleteOnShutdown = false;
@@ -138,6 +138,28 @@ public class Embed {
             Logs.warn("Failed to send an embed: " + exc.getMessage());
         }
     }
+    public void ModifyHook(InteractionHook hook) {
+        Consumer<Message> onSuccess = null;
+        if(deleteOnShutdown) {
+            onSuccess = (message) -> {
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                discord.DeleteMessageOnShutdown(messageID);
+                if(onSend != null) {
+                    onSend.accept(messageID);
+                }
+            };
+        }
+        try {
+            MessageEditData edit = MessageEditBuilder.fromMessage(hook.getCallbackResponse().getMessage())
+                    .setEmbeds(this.Build())
+                    .setComponents(this.actionRows.stream().map((row)->row.Build(processor, translations)).toList())
+                    .setReplace(true)
+                    .build();
+            hook.editOriginal(edit).queue(onSuccess);
+        } catch(Exception exc) {
+            Logs.warn("Failed to send an embed: " + exc.getMessage());
+        }
+    }
     public void Modify(Message message) {
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
@@ -145,9 +167,7 @@ public class Embed {
                 MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
                 discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
-                    if(onSend != null) {
-                        onSend.accept(messageID);
-                    }
+                    onSend.accept(messageID);
                 }
             };
         }
@@ -163,4 +183,4 @@ public class Embed {
             Logs.warn("Failed to modify an embed: " + exc.getMessage());
         }
     }
-};
+}

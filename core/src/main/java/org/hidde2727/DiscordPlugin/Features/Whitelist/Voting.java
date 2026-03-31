@@ -14,10 +14,10 @@ import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 
 public class Voting {
-    private Whitelist whitelist;
-    private Discord discord;
-    private Config.Whitelist.Voting config;
-    private DataStorage permanentData;
+    private final Whitelist whitelist;
+    private final Discord discord;
+    private final Config.Whitelist.Voting config;
+    private final DataStorage permanentData;
 
     Voting(Whitelist whitelist) {
         this.whitelist = whitelist;
@@ -25,10 +25,12 @@ public class Voting {
         this.config = whitelist.config.voting;
         this.permanentData = whitelist.permanentData;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(!discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Whitelist voting channel does not exist");
             this.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(!discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the whitelist voting channel");
             this.config.enabled = false;
         }

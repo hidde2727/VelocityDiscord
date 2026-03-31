@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Features.*;
 import org.hidde2727.DiscordPlugin.Features.Banning.Banning;
+import org.hidde2727.DiscordPlugin.Features.Unban.Unban;
 import org.hidde2727.DiscordPlugin.Features.Whitelist.Whitelist;
 import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.hidde2727.DiscordPlugin.Storage.Config;
@@ -62,7 +63,7 @@ public class DiscordPlugin {
     public void OnServerStart() {
         if(disabled) return;
 
-        players = new PlayerManager(config, dataStorage, implementation.IsOnlineMode());
+        players = new PlayerManager(this);
 
         // Add all the features
         this.onStart = new OnStart(this);
@@ -72,6 +73,7 @@ public class DiscordPlugin {
         this.onMessage = new OnMessage(this);
         this.whitelist = new Whitelist(this);
         this.banning = new Banning(this);
+        this.unban = new Unban(this);
         this.maintenance = new Maintenance(this);
 
         this.onStart.OnServerStart();
@@ -80,6 +82,8 @@ public class DiscordPlugin {
         discord.AddEventListener(whitelist);
         this.banning.OnServerStart();
         discord.AddEventListener(banning);
+        this.unban.OnServerStart();
+        discord.AddEventListener(unban);
         discord.AddEventListener(maintenance);
     }
     public void OnServerStop() {
@@ -190,5 +194,6 @@ public class DiscordPlugin {
     OnMessage onMessage;
     Whitelist whitelist;
     Banning banning;
+    Unban unban;
     Maintenance maintenance;
 }
