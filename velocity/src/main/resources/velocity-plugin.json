@@ -1,0 +1,8 @@
+{
+  "id": "discordio",
+  "name": "Discordio",
+  "version": "${version}",
+  "description": "Discord management of your velocity proxy",
+  "authors": ["hidde2727"],
+  "main": "org.hidde2727.DiscordPlugin.Velocity"
+}

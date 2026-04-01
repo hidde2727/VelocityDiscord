@@ -17,12 +17,22 @@ dependencies {
     implementation(project(":core"))
 
     compileOnly("com.velocitypowered:velocity-api:${velocity_version}")
-    annotationProcessor("com.velocitypowered:velocity-api:${velocity_version}")
+    // annotationProcessor("com.velocitypowered:velocity-api:${velocity_version}")
 }
 
 tasks.shadowJar {
     archiveVersion = ""
     relocate("org.yaml.snakeyaml", "me.shadow.snakeyaml")
+}
+
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+
+    filesMatching("velocity-plugin.json") {
+        expand "version": project.version
+    }
 }
 
 build.dependsOn shadowJar

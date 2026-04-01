@@ -22,8 +22,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.util.UuidUtils;
 
-@Plugin(id = "discordio", name = "Discordio", version = "3.5.0-SNAPSHOT",
-        url = "", description = "Discord management of your velocity proxy", authors = {"hidde2727"})
+@Plugin(id = "discordio", name = "Discordio")// Not processed by velocity annotation processor, using the velocity-plugin.json resource instead
 public class Velocity implements Implementation {
     ProxyServer server;
     Logger logger;

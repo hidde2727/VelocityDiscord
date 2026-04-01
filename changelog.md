@@ -1,1 +1,1 @@
-- Added default color for squashed request message
+- Fix fabric mod version
