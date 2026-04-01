@@ -1,2 +1,1 @@
-- Added the info command
-- Added the option to send the whitelist, ban and unban request in one message
+- Added default color for squashed request message
