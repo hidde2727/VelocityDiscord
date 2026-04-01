@@ -63,6 +63,7 @@ embeds:
           unban:
             label: "Request unban"
             emoji: "U+2705"
+        color: "blue"
 
 
   #
