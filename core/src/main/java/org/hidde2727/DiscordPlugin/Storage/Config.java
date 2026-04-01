@@ -76,6 +76,7 @@ public class Config {
         }
         public static class Request {
             public boolean enabled = false;
+            public transient boolean sendMessage = true;// Used by SquashedRequest
             public String channel = "";
             public boolean checkRoles = false;
             public List<String> allowedRoles = new ArrayList<>();
@@ -108,6 +109,7 @@ public class Config {
         }
         public static class Request {
             public boolean enabled = false;
+            public transient boolean sendMessage = true;// Used by SquashedRequest
             public String channel = "";
             public boolean checkRoles = false;
             public List<String> allowedRoles = new ArrayList<>();
@@ -164,6 +166,7 @@ public class Config {
         }
         public static class Request {
             public boolean enabled = false;
+            public transient boolean sendMessage = true;// Used by SquashedRequest
             public String channel = "";
             public boolean checkRoles = false;
             public List<String> allowedRoles = new ArrayList<>();
@@ -208,13 +211,28 @@ public class Config {
         public OnStop onStop = new OnStop();
     }
 
+    public static class InfoCommand {
+        public boolean enabled = false;
+        public boolean checkChannel = true;
+        public List<String> allowedChannels = new ArrayList<>();
+        public boolean checkRoles = false;
+        public List<String> allowedRoles = new ArrayList<>();
+    }
+
+    public static class SquashedRequest {
+        public boolean enabled = false;
+        public String channel = "";
+    }
+
     public String botToken = "";
     public String guildId = "";
     public Events events = new Events();
     public boolean useUUID = true;
     public boolean connectAccounts = true;
+    public SquashedRequest squashedRequest = new SquashedRequest();
     public Whitelist whitelist = new Whitelist();
     public Banning banning = new Banning();
     public Unban unban = new Unban();
     public Maintenance maintenance = new Maintenance();
+    public InfoCommand infoCommand = new InfoCommand();
 }

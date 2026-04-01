@@ -2,28 +2,34 @@
 # Once a feature is enabled, disabling it again may result in undefined behavior
 # If you really want to disable a feature, but this wrecks your whitelist/install, you should delete the data.yml file
 
-botToken:   "Insert your token here, see the README.md on how to get a token"
+# See https://modrinth.com/plugin/discordio on how to get a token
+botToken:   "Insert your token here, see the https://modrinth.com/plugin/discordio on how to get a token"
 # Guild ID is needed for adding commands
 guildId:    "Insert your guild id here (the ID of your discord server)"
 
 # Discord messages for in game events
 events:
+  # On server start message
   onStart:
     enabled: false
     channel: "id..."
-    
+
+  # On server stop message
   onStop:
     enabled: false
     channel: "id..."
 
+  # On player join message
   onJoin:
     enabled: false
     channel: "id..."
 
+  # On player leave message
   onLeave:
     enabled: false
     channel: "id..."
 
+  # On discord/minecraft message forward it
   onMessage:
     enabled: false
     minecraftToDiscord: true
@@ -52,6 +58,11 @@ useUUID: true
 # You currently cannot change this setting after you have someone whitelisted, so choose carefully
 # If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 connectAccounts: true
+
+# If to add the whitelist, ban and unban request message together in one single request message
+squashedRequest:
+  enabled: false
+  channel: "id..."
 
 # Whitelisting via discord
 whitelist:
@@ -189,7 +200,7 @@ maintenance:
   # Command to enable maintenance mode via discord
   command:
     enabled: false
-    checkChannel: true
+    checkChannel: false
     allowedChannels: ["id..."]
     checkRoles: false
     allowedRoles: []
@@ -201,3 +212,11 @@ maintenance:
   onStop:
     enabled: false
     channel: "id..."
+
+# A discord command to see if someone is whitelisted or not (and if the person has punishments)
+infoCommand:
+  enabled: false
+  checkChannel: false
+  allowedChannels: ["id..."]
+  checkRoles: false
+  allowedRoles: []

@@ -14,10 +14,10 @@ import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import java.util.stream.Collectors;
 
 public class Punishment {
-    private Banning banning;
-    private Discord discord;
-    private Config.Banning.PunishmentPicker config;
-    private DataStorage permanentData;
+    private final Banning banning;
+    private final Discord discord;
+    private final Config.Banning.PunishmentPicker config;
+    private final DataStorage permanentData;
 
     Punishment(Banning banning) {
         this.banning = banning;
@@ -25,10 +25,12 @@ public class Punishment {
         this.config = banning.config.punishment;
         this.permanentData = banning.permanentData;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(!discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Banning punishment channel does not exist");
             banning.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(!discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the banning punishment channel");
             banning.config.enabled = false;
         }

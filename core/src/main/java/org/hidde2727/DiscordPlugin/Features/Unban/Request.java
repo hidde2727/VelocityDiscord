@@ -42,10 +42,12 @@ public class Request {
         this.unban = unban;
         this.config = unban.config.request;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(config.sendMessage && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Unban request channel does not exist");
             unban.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(config.sendMessage && !discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the unban request channel");
             unban.config.enabled = false;
         }
@@ -55,9 +57,10 @@ public class Request {
     // 1. Initial embed people can use to get whitelisted:
     void SendRequestEmbed() {
         if(!config.enabled) return;
+        if(!config.sendMessage) return;
         discord.CreateEmbed()
                 .SetLanguageNamespace("unban" , "request")
-                .AddActionRow(new ActionRow(Button.Primary("unban-request-button", "button")))
+                .AddActionRow(new ActionRow(Button.Secondary("unban-request-button", "button")))
                 .DeleteOnShutdown()
                 .SendInChannel(config.channel);
     }

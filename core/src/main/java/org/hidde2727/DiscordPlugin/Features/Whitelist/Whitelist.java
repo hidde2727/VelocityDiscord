@@ -57,8 +57,7 @@ public class Whitelist extends ListenerAdapter {
         voting.OnRequest(request);
     }
     void AcceptWhitelist(DataStorage.WhitelistRequest request) {
-        permanentData.players.put(request.key, new DataStorage.Player(request.discordUUID, request.minecraftName, request.minecraftUUID));
-        permanentData.players.get(request.key).whitelisted = true;
+        players.AddPlayer(new DataStorage.Player(request.discordUUID, request.minecraftName, request.minecraftUUID), true);
         permanentData.whitelistRequests.remove(request.key);
 
         if(config.giveRoleOnWhitelist) {
@@ -105,10 +104,7 @@ public class Whitelist extends ListenerAdapter {
         return false;
     }
     boolean IsWhitelistedByDiscord(String discordUUID) {
-        for(Player player : permanentData.players.values()) {
-            if(player.discordUUID.equals(discordUUID)) return player.whitelisted;
-        }
-        return false;
+        return players.IsWhitelistedByDiscordUUID(discordUUID);
     }
     Map<String, String> GetVariables(User user) {
         Map<String, String> variables = new HashMap<>();

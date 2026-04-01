@@ -155,7 +155,7 @@ public class Discord {
     }
 
     public void AddCommand(CommandData command) {
-        jda.getGuildById(guildId).updateCommands().addCommands(command).queue();
+        jda.getGuildById(guildId).upsertCommand(command).queue();
     }
 
     public void AddEventListener(Object... listeners) {

@@ -26,10 +26,12 @@ public class Request {
         this.whitelist = whitelist;
         this.config = whitelist.config.request;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(config.sendMessage && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Whitelist request channel does not exist");
             whitelist.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(config.sendMessage && !discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the whitelist request channel");
             whitelist.config.enabled = false;
         }
@@ -39,6 +41,7 @@ public class Request {
     // 1. Initial embed people can use to get whitelisted:
     void SendRequestEmbed() {
         if(!config.enabled) return;
+        if(!config.sendMessage) return;
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist" , "request")
                 .AddActionRow(new ActionRow(Button.Primary("whitelist-request-button", "button")))

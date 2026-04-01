@@ -13,10 +13,10 @@ import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 
 public class Reason {
-    private Banning banning;
-    private Discord discord;
-    private Config.Banning.ReasonPicker config;
-    private DataStorage permanentData;
+    private final Banning banning;
+    private final Discord discord;
+    private final Config.Banning.ReasonPicker config;
+    private final DataStorage permanentData;
 
     Reason(Banning banning) {
         this.banning = banning;
@@ -24,10 +24,12 @@ public class Reason {
         this.config = banning.config.reason;
         this.permanentData = banning.permanentData;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(!discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Banning reason channel does not exist");
             banning.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(!discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the banning reason channel");
             banning.config.enabled = false;
         }

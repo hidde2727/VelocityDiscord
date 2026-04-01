@@ -59,6 +59,7 @@ public class Language {
         public Footer footer = new Footer();
         public Author author = new Author();
         public Map<String, Action> actions = new HashMap<>();
+        public String extra = null;
     }
     public static class Modal {
         public static class Action {
@@ -112,6 +113,7 @@ public class Language {
         translations.put("author.name", embed.author.name == null ? defaults.embed.author.name : embed.author.name);
         translations.put("author.url", embed.author.url == null ? defaults.embed.author.url : embed.author.url);
         translations.put("author.iconUrl", embed.author.iconUrl == null ? defaults.embed.author.iconUrl : embed.author.iconUrl);
+        translations.put("extra", embed.extra == null ? defaults.embed.extra : embed.extra);
         for(Map.Entry<String, Embed.Action> action : embed.actions.entrySet()) {
             translations.put("actions."+action.getKey()+".label", action.getValue().label);
             translations.put("actions."+action.getKey()+".placeholder", action.getValue().placeholder);

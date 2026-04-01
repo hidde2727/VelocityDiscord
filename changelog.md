@@ -1,2 +1,2 @@
-- Added unban feature
-- Language file changes
+- Added the info command
+- Added the option to send the whitelist, ban and unban request in one message

@@ -16,6 +16,9 @@ public class ActionRow {
     public ActionRow(ActionRowItem... items) {
         this.items = Arrays.asList(items);
     }
+    public ActionRow(List<ActionRowItem> items) {
+        this.items = items;
+    }
 
     public ActionRow(ActionRowItem item) {
         this.items = new ArrayList<ActionRowItem>();

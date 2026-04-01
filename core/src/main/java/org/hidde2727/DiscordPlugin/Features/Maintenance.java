@@ -62,9 +62,9 @@ public class Maintenance extends ListenerAdapter {
             commandName = plugin.stringProcessor.GetString(cmdLanguage.name);
             commandOptionName = plugin.stringProcessor.GetString(optLanguage.name);
 
-            Predicate<String> pattern = Pattern.compile("^[\\w-]+$").asMatchPredicate();
+            Predicate<String> pattern = Pattern.compile("^[a-z-]+$").asMatchPredicate();
             if(!pattern.test(commandName) || !pattern.test(commandOptionName)) {
-                Logs.warn("maintenanceCommand.name and maintenanceCommand.option.name in the messages.properties file may only contain letters and dashes (-)");
+                Logs.warn("maintenanceCommand.name and maintenanceCommand.option.name in the messages.properties file may only contain lowercase letters and dashes (-)");
                 config.command.enabled = false;
                 return;
             }
@@ -134,7 +134,10 @@ public class Maintenance extends ListenerAdapter {
         if(!config.enabled) return;
         if(!config.command.enabled) return;
         if (!event.getName().equals(commandName)) return;
-        if(event.getOption(commandOptionName) == null) return;
+        if(event.getOption(commandOptionName) == null) {
+            SendIncompleteMessage(event);
+            return;
+        }
 
         if(config.command.checkChannel) {
             if(!config.command.allowedChannels.contains(event.getChannelId())) {
@@ -170,5 +173,12 @@ public class Maintenance extends ListenerAdapter {
             .SetVariables(GetVariables(event.getUser()))
             .SetVariable("COMMAND_OPTION", event.getOption(commandOptionName).getAsString())
             .Send(event, true);
+    }
+
+    private void SendIncompleteMessage(SlashCommandInteractionEvent event) {
+        discord.CreateEmbed()
+                .SetLanguageNamespace("infoCommand", "incomplete")
+                .SetVariables(GetVariables(event.getUser()))
+                .Send(event, true);
     }
 }

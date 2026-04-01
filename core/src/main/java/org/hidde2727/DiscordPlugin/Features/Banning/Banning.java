@@ -69,15 +69,8 @@ public class Banning extends ListenerAdapter {
     }
     void OnDecideReason(DataStorage.BanRequest request) {
         permanentData.banRequestsDecided.remove(request.key);
-        request.player.punishments.add(
-                new Player.Punishment(request.punishment, request.punishmentName, request.duration, request.reason)
-        );
-
-        if(config.giveRoleOnBan) {
-            if(!discord.GiveUserRole(request.player.discordUUID, config.bannedRoleID)) {
-                Logs.warn("Cannot give a banned player a role that does not exist");
-            }
-        }
+        players.AddPunishment(request.player, new Player.Punishment(request.punishment, request.punishmentName, request.duration, request.reason));
+        // playerManager gives roles on ban and unban
 
         result.OnAccept(request);
     }

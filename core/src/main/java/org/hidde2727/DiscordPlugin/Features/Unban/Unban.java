@@ -13,6 +13,7 @@ import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player;
 
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -50,8 +51,7 @@ public class Unban extends ListenerAdapter {
     void AcceptUnban(DataStorage.UnbanRequest request) {
         permanentData.unbanRequests.remove(request.key);
         result.OnAccept(request);
-        request.player.punishments.remove(request.forPunishment);
-        players.RemovePlayerRoleIfNoPunishments(request.player);
+        players.RemovePunishment(request.player, request.forPunishment);
     }
     void DenyUnban(DataStorage.UnbanRequest request) {
         permanentData.unbanRequests.remove(request.key);
@@ -96,7 +96,7 @@ public class Unban extends ListenerAdapter {
         Map<String, String> variables = new HashMap<>();
         variables.put("PUNISHMENT_NAME", punishment.punishmentName);
         variables.put("PUNISHMENT", punishment.punishment.toString());
-        variables.put("PUNISHMENT_UNTIL", punishment.until.toString());
+        variables.put("PUNISHMENT_UNTIL", punishment.until.truncatedTo(ChronoUnit.SECONDS).toString());
         variables.put("PUNISHMENT_UNTIL_SECONDS", Integer.toString(punishment.until.getSecond()));
         variables.put("PUNISHMENT_UNTIL_MINUTES", Integer.toString(punishment.until.getMinute()));
         variables.put("PUNISHMENT_UNTIL_HOURS", Integer.toString(punishment.until.getHour()));

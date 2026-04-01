@@ -44,6 +44,13 @@ public class PlayerManager {
         return config.useUUID;
     }
 
+    public String GetMinecraftKey(Player player) {
+        if(config.useUUID) {
+            return player.minecraftUUID;
+        } else {
+            return player.minecraftName;
+        }
+    }
     public String GetMinecraftKey(String username, String UUID) {
         if(config.useUUID) {
             return UUID;
@@ -72,6 +79,23 @@ public class PlayerManager {
         return null;
     }
 
+    public boolean IsWhitelistedByDiscordUUID(String discordUUID) {
+        Player player = GetPlayerByDiscord(discordUUID);
+        if(player == null) return false;
+        return player.whitelisted;
+    }
+
+    public void AddPunishment(Player player, Player.Punishment punishment) {
+        player.punishments.add(punishment);
+        if(!config.banning.giveRoleOnBan) return;
+        if(!plugin.discord.GiveUserRole(player.discordUUID, config.banning.bannedRoleID)) {
+            Logs.warn("Cannot give a banned player a role that does not exist");
+        }
+    }
+    public void RemovePunishment(Player player, Player.Punishment punishment) {
+        player.punishments.remove(punishment);
+        RemovePlayerRoleIfNoPunishments(player);
+    }
     public void RemovePlayerRoleIfNoPunishments(Player player) {
         if(!player.punishments.isEmpty()) return;
         if(!config.banning.giveRoleOnBan) return;
@@ -100,5 +124,12 @@ public class PlayerManager {
     }
     public boolean HasPunishment(Player player, Config.Banning.PunishmentPicker.PunishmentType type) {
         return GetPunishment(player, type) != null;
+    }
+
+    public void AddPlayer(Player player, boolean alsoWhitelist) {
+        storage.players.put(GetMinecraftKey(player), player);
+        storage.players.get(GetMinecraftKey(player)).whitelisted = alsoWhitelist;
+
+        plugin.OnPlayerAdd();
     }
 }

@@ -71,12 +71,15 @@ public class DiscordPlugin {
         this.onJoin = new OnJoin(this);
         this.onLeave = new OnLeave(this);
         this.onMessage = new OnMessage(this);
+        this.squashedRequest = new SquashedRequest(this);
         this.whitelist = new Whitelist(this);
         this.banning = new Banning(this);
         this.unban = new Unban(this);
         this.maintenance = new Maintenance(this);
+        this.infoCommand = new InfoCommand(this);
 
         this.onStart.OnServerStart();
+        this.squashedRequest.OnServerStart();
         discord.AddEventListener(onMessage);
         this.whitelist.OnServerStart();
         discord.AddEventListener(whitelist);
@@ -85,6 +88,7 @@ public class DiscordPlugin {
         this.unban.OnServerStart();
         discord.AddEventListener(unban);
         discord.AddEventListener(maintenance);
+        discord.AddEventListener(infoCommand);
     }
     public void OnServerStop() {
         Logs.info("Stopping the discord plugin");
@@ -131,6 +135,13 @@ public class DiscordPlugin {
         if(disabled) return;
 
         onLeave.OnPlayerDisconnect(playerName, playerUUID);
+    }
+
+    // Called by PlayerManager when a player is added
+    public void OnPlayerAdd() {
+        if(disabled) return;
+
+        infoCommand.OnPlayerAdd();
     }
 
     private void CreateDirectoryIfNotExists(Path folder) {
@@ -192,8 +203,10 @@ public class DiscordPlugin {
     OnJoin onJoin;
     OnLeave onLeave;
     OnMessage onMessage;
+    SquashedRequest squashedRequest;
     Whitelist whitelist;
     Banning banning;
     Unban unban;
     Maintenance maintenance;
+    InfoCommand infoCommand;
 }

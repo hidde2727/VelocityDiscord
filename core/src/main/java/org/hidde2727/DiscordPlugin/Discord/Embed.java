@@ -76,6 +76,12 @@ public class Embed {
         this.onSend = onSend;
         return this;
     }
+    public String GetTranslation(String key) {
+        return translations.get(key);
+    }
+    public void AddToTranslation(String key, String value) {
+        translations.put(key, translations.get(key) + value);
+    }
 
     private MessageEmbed Build() {
         if(translations == null) return null;

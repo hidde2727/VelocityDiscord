@@ -35,10 +35,12 @@ public class Request {
         this.banning = banning;
         this.config = banning.config.request;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(config.sendMessage && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Banning request channel does not exist");
             banning.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(config.sendMessage && !discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the banning request channel");
             banning.config.enabled = false;
         }
@@ -57,9 +59,10 @@ public class Request {
     // 1. Initial embed people can use to get whitelisted:
     void SendRequestEmbed() {
         if(!config.enabled) return;
+        if(!config.sendMessage) return;
         discord.CreateEmbed()
                 .SetLanguageNamespace("banning" , "request")
-                .AddActionRow(new ActionRow(Button.Primary("ban-request-button", "button")))
+                .AddActionRow(new ActionRow(Button.Destructive("ban-request-button", "button")))
                 .DeleteOnShutdown()
                 .SendInChannel(config.channel);
     }

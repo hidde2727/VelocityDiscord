@@ -25,10 +25,12 @@ public class Voting {
         this.config = unban.config.voting;
         this.permanentData = unban.permanentData;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
+        if(!config.enabled) return;
+
+        if(!discord.DoesTextChannelExist(config.channel)) {
             Logs.error("Unban voting channel does not exist");
             this.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
+        } else if(!discord.CanBotAccesTextChannel(config.channel)) {
             Logs.error("The bot cannot access the unban voting channel");
             this.config.enabled = false;
         }
