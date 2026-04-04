@@ -20,6 +20,11 @@ dependencies {
     // annotationProcessor("com.velocitypowered:velocity-api:${velocity_version}")
 }
 
+java {
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
+}
+
 tasks.shadowJar {
     archiveVersion = ""
     relocate("org.yaml.snakeyaml", "me.shadow.snakeyaml")

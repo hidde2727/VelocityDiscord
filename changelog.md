@@ -1,1 +1,1 @@
-- Fix fabric mod version
+- Relaxed velocity version requirement
