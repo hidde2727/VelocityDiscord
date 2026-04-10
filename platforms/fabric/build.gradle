@@ -14,7 +14,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "discord-plugin" {
+        "discordio" {
             sourceSet sourceSets.main
         }
     }
@@ -47,6 +47,7 @@ shadowJar {
 
     archiveVersion = ""
 }
+build.dependsOn shadowJar
 
 processResources {
     inputs.property "version", project.version

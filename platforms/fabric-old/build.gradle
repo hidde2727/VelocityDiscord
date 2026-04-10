@@ -80,11 +80,11 @@ java {
 
 // Renames the jar file:
 tasks.register("generatePublishJar", Jar) {
-    dependsOn tasks.shadowJar
+    dependsOn tasks.remapJar
 
-    from(zipTree(tasks.shadowJar.archiveFile))
+    from(zipTree(tasks.remapJar.archiveFile))
     archiveFileName.set("discordio-fabric(before-1.21.11)-${version}.jar")
-    destinationDirectory.set(tasks.shadowJar.destinationDirectory)
+    destinationDirectory.set(tasks.remapJar.destinationDirectory)
 }
 modrinth {
     token = "${rootProject.ext.modrinth_token}"

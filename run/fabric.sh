@@ -8,7 +8,7 @@ if [ $WORKING_DIR == "run" ]; then
 fi
 ./run/fabric/stop.sh
 
-gradle platforms:fabric:build
+gradle platforms:fabric:shadowJar
 cp ./platforms/fabric/build/libs/fabric-all.jar ./run/fabric/mods/fabric-discord.jar
 
 cd ./run/fabric
