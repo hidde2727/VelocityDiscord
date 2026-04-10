@@ -52,12 +52,16 @@ processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
+    inputs.property "depends_minecraft_version", project.depends_minecraft_version
+    inputs.property "depends_loader_version", project.depends_loader_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+                "loader_version": project.loader_version,
+                "depends_minecraft_version": project.depends_minecraft_version,
+                "depends_loader_version": project.depends_loader_version
     }
 }
 
@@ -69,13 +73,21 @@ java {
     withSourcesJar()
 }
 
+// Renames the jar file:
+tasks.register("generatePublishJar", Jar) {
+    dependsOn tasks.shadowJar
+
+    from(zipTree(tasks.shadowJar.archiveFile))
+    archiveFileName.set("discordio-fabric-${version}.jar")
+    destinationDirectory.set(tasks.shadowJar.destinationDirectory)
+}
 modrinth {
     token = "${rootProject.ext.modrinth_token}"
     projectId = "${rootProject.ext.modrinth_id}"
     versionNumber = "${version}"
-    versionName = "Discordio - Fabric - ${version}"
+    versionName = "Discordio - Fabric 26.1 - ${version}"
     versionType = "${modrinth_version_type}"
-    uploadFile = shadowJar
+    uploadFile = generatePublishJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['fabric']
     changelog = "${rootProject.ext.modrinth_changelog}"

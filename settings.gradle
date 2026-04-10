@@ -8,4 +8,4 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-include("core", "velocity", "fabric")
+include("core", "platforms:velocity", "platforms:fabric", "platforms:fabric-old")

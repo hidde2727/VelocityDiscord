@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "discordio",
+  "version": "${version}",
+  "name": "Discord management fabric",
+  "description": "A server side mod to add discord messages to your server",
+  "authors": ["hidde2727"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "org.hidde2727.DiscordPlugin.Fabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": "${depends_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${depends_minecraft_version}"
+  },
+  "mixins": [
+    "fabric.mixins.json"
+  ]
+}

@@ -7,5 +7,6 @@ read -p "Press any key to continue..."
 echo "Are you sure, this will publish to the public"
 read -p "Press any key to continue..."
 
-gradle :fabric:modrinth
-gradle :velocity:modrinth
+gradle platforms:fabric:modrinth
+gradle platforms:fabric-old:modrinth
+gradle platforms:velocity:modrinth

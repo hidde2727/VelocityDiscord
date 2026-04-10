@@ -1,1 +1,2 @@
-- Relaxed velocity version requirement
+- Made jar files have sensible names
+- Added fabric old version to keep support for minecraft versions below 26.1

@@ -117,6 +117,12 @@ public class Banning extends ListenerAdapter {
             variables.put("ADMIN_UUID", admin.getId());
         }
 
+        User requester = discord.GetUserByID(request.suggestedByDiscordUUID);
+        variables.put("REQUESTER_NAME", requester.getName());
+        variables.put("REQUESTER_GLOBAL_NAME", requester.getGlobalName());
+        variables.put("REQUESTER_EFFECTIVE_NAME", requester.getEffectiveName());
+        variables.put("REQUESTER_UUID", requester.getId());
+
         variables.put("ACCEPT_VOTES", String.valueOf(request.upVotes.size()));
         variables.put("DENY_VOTES", String.valueOf(request.downVotes.size()));
         if(decided) {

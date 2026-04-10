@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 public class Embed {
     private final Discord discord;
     private StringProcessor processor;
+    private String translationKey;
     private final StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
     private Map<String, String> translations;
     private final List<ActionRow> actionRows = new ArrayList<>();
@@ -48,6 +49,7 @@ public class Embed {
         if(translations.isEmpty()) {
             Logs.warn("An embed with translation keys ['" + namespace + "', '" + key + "'] requested but no translations were not found");
         }
+        translationKey = "[" + namespace + ", " + key + "]";
         return this;
     }
     public Embed SetVariable(String key, String value) {
@@ -98,7 +100,7 @@ public class Embed {
         embed.setAuthor(ProcessString("author.name"), ProcessString("author.url"), ProcessString("author.iconUrl"));
         embed.setUrl(ProcessString("url"));
         embed.setColor(ProcessColor("color"));
-        if(embed.isEmpty()) embed.setTitle("Empty embed, no data was provided");
+        if(embed.isEmpty()) embed.setTitle("Empty embed (translation key: '" + translationKey + "'), no data was provided");
         return embed.build();
     }
     public void SendInChannel(String channelId) {
@@ -119,7 +121,7 @@ public class Embed {
             }
             message.queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to send an embed: " + exc.getMessage());
+            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
     public void Send(IReplyCallback callback, boolean ephermal) {
@@ -141,7 +143,7 @@ public class Embed {
             }
             message.setEphemeral(ephermal).queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to send an embed: " + exc.getMessage());
+            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
     public void ModifyHook(InteractionHook hook) {
@@ -163,7 +165,7 @@ public class Embed {
                     .build();
             hook.editOriginal(edit).queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to send an embed: " + exc.getMessage());
+            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
     public void Modify(Message message) {
@@ -186,7 +188,7 @@ public class Embed {
             .build();
             message.editMessage(edit).queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to modify an embed: " + exc.getMessage());
+            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
 }

@@ -10,7 +10,8 @@ build
 bin
 
 # All the run directories
-fabric/run
+platforms/fabric/run
+platforms/fabric-old/run
 /run/*
 !fabric.sh
 !velocity.sh

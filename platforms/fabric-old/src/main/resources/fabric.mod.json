@@ -14,9 +14,9 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=${loader_version}",
+    "fabricloader": "${depends_loader_version}",
     "fabric-api": "*",
-    "minecraft": ">=${minecraft_version}"
+    "minecraft": "${depends_minecraft_version}"
   },
   "mixins": [
     "fabric.mixins.json"

@@ -100,7 +100,7 @@ embeds:
       requestConfirm:
         title: "Is this you?"
         description: "Check if the skin below is from your account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -222,7 +222,7 @@ embeds:
       requestConfirm:
         title: "Do you want to ban this user?"
         description: "1. Do you want to request a ban of **${PLAYER_NAME}** with the following reason: '*${REASON}*'.\n2. Check if the skin below is from the account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
         actions:
           confirm:
             label: "This is him"
@@ -252,7 +252,7 @@ embeds:
 
       punishmentPicker:
         title: "Ban request - Punishment"
-        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\""
+        description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\""
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -263,7 +263,7 @@ embeds:
 
       punishmentVoting:
         title: "Ban request - Punishment"
-        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\".\n <@${ADMIN_UUID}> suggests **${PUNISHMENT}** \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\".\n <@${ADMIN_UUID}> suggests **${PUNISHMENT}** \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -292,8 +292,8 @@ embeds:
 
       reasonPicker:
         title: "Ban Request - Reason"
-        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\". This reason was denied, what should the reason be?"
-        imageUrl: "https://minotar.net/head/${PLAYER_KEY}/100.png"
+        description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\". This reason was denied, what should the reason be?"
+        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -303,8 +303,8 @@ embeds:
 
       reasonFirstVote:
         title: "Ban request - Reason"
-        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${REASON}\".\n Is this a good **reason**? \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/head/${PLAYER_KEY}/100.png"
+        description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${REASON}\".\n Is this a good **reason**? \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -318,8 +318,8 @@ embeds:
 
       reasonVoting:
         title: "Ban request - Reason change"
-        description: "The discord user <@${DISCORD_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\".\n\n <@${ADMIN_UUID}> suggests to change the reason to \"${REASON}\" \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request"
-        imageUrl: "https://minotar.net/head/${PLAYER_KEY}/100.png"
+        description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\".\n\n <@${ADMIN_UUID}> suggests to change the reason to \"${REASON}\" \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request"
+        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -347,7 +347,7 @@ embeds:
 
       publicDenied:
         title: "Punishment denied"
-        description: "**${PLAYER_NAME}** did not get a punishment\n(Requested by <@${DISCORD_UUID}>)"
+        description: "**${PLAYER_NAME}** did not get a punishment\n(Requested by <@${REQUESTER_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -355,7 +355,7 @@ embeds:
 
       publicAccepted:
         title: "Punishment accepted"
-        description: "**${PLAYER_NAME}** got a *${PUNISHMENT}* because '*${REASON}*'\n(Requested by <@${DISCORD_UUID}>)"
+        description: "**${PLAYER_NAME}** got a *${PUNISHMENT}* because '*${REASON}*'\n(Requested by <@${REQUESTER_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -447,7 +447,7 @@ embeds:
 
       voting:
         title: "Unban request"
-        description: "The discord user <@${DISCORD_UUID}> would like to have his punishment **${PUNISHMENT_NAME}** removed from his minecraft account **${PLAYER_NAME}**.\n He has given the following reason:\n *${REASON}* \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. \n(${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
+        description: "The discord user <@${REQUESTER_UUID}> would like to have his punishment **${PUNISHMENT_NAME}** removed from his minecraft account **${PLAYER_NAME}**.\n He has given the following reason:\n *${REASON}* \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. \n(${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -462,7 +462,7 @@ embeds:
 
       votingDenied:
         title: "Unban request - denied"
-        description: "The request from the user <@${DISCORD_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was denied"
+        description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was denied"
         imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -470,7 +470,7 @@ embeds:
 
       votingAccepted:
         title: "Unban request - accepted"
-        description: "The request from the user <@${DISCORD_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was accepted"
+        description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was accepted"
         imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -484,7 +484,7 @@ embeds:
 
       publicDenied:
         title: "Unban denied"
-        description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* wasn't removed. \n(Requested by <@${DISCORD_UUID}>)"
+        description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* wasn't removed. \n(Requested by <@${REQUESTER_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -492,7 +492,7 @@ embeds:
 
       publicAccepted:
         title: "Unban accepted"
-        description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* was removed.\n(Requested by <@${DISCORD_UUID}>)"
+        description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* was removed.\n(Requested by <@${REQUESTER_UUID}>)"
         imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"

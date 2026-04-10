@@ -1,0 +1,99 @@
+plugins {
+    id("java")
+    id("com.gradleup.shadow") version "${shadow_version}"
+    id "com.modrinth.minotaur" version "${modrinth_minotaur_version}"
+    id("net.fabricmc.fabric-loom-remap") version "${old_loom_version}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "discord-plugin" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    implementation(project(":core"))
+
+    minecraft "com.mojang:minecraft:${project.old_minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.old_yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.old_loader_version}"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.old_fabric_version}"
+}
+
+shadowJar {
+    from(project(":core").sourceSets.main.output)
+    configurations = [ project(":core").configurations.runtimeClasspath ]
+    exclude(group = "net.fabricmc")
+    exclude(group = "net.fabricmc.fabric-api")
+    exclude(group = "com.mojang")
+
+    exclude(group="net.dv8tion")
+    exclude(group="com.fasterxml")
+    exclude(group="okhttp3")
+    exclude(group="okio")
+    exclude(group="org.slf4j")
+    exclude(group="oshi")
+    exclude(group="com.sun.jna")
+
+    archiveVersion = ""
+}
+tasks.remapJar {
+    dependsOn shadowJar
+    inputFile.set(shadowJar.archiveFile)
+}
+build.dependsOn remapJar
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.old_minecraft_version
+    inputs.property "loader_version", project.old_loader_version
+    inputs.property "depends_minecraft_version", project.old_depends_minecraft_version
+    inputs.property "depends_loader_version", project.old_depends_loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.old_minecraft_version,
+                "loader_version": project.old_loader_version,
+                "depends_minecraft_version": project.old_depends_minecraft_version,
+                "depends_loader_version": project.old_depends_loader_version
+    }
+}
+
+java {
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
+
+    // Fabric loom:
+    withSourcesJar()
+}
+
+// Renames the jar file:
+tasks.register("generatePublishJar", Jar) {
+    dependsOn tasks.shadowJar
+
+    from(zipTree(tasks.shadowJar.archiveFile))
+    archiveFileName.set("discordio-fabric(before-1.21.11)-${version}.jar")
+    destinationDirectory.set(tasks.shadowJar.destinationDirectory)
+}
+modrinth {
+    token = "${rootProject.ext.modrinth_token}"
+    projectId = "${rootProject.ext.modrinth_id}"
+    versionNumber = "${version}"
+    versionName = "Discordio - Fabric 1.21 - ${version}"
+    versionType = "${modrinth_version_type}"
+    uploadFile = generatePublishJar
+    gameVersions = "${old_modrinth_minecraft_versions}".tokenize(" ")
+    loaders = ['fabric']
+    changelog = "${rootProject.ext.modrinth_changelog}"
+}

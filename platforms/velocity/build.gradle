@@ -42,13 +42,22 @@ processResources {
 
 build.dependsOn shadowJar
 
+
+// Renames the jar file:
+tasks.register("generatePublishJar", Jar) {
+    dependsOn tasks.shadowJar
+
+    from(zipTree(tasks.shadowJar.archiveFile))
+    archiveFileName.set("discordio-velocity-${version}.jar")
+    destinationDirectory.set(tasks.shadowJar.destinationDirectory)
+}
 modrinth {
     token = "${rootProject.ext.modrinth_token}"
     projectId = "${rootProject.ext.modrinth_id}"
     versionNumber = "${version}"
     versionName = "Discordio - Velocity - ${version}"
     versionType = "${modrinth_version_type}"
-    uploadFile = shadowJar
+    uploadFile = generatePublishJar
     gameVersions = "${modrinth_minecraft_versions}".tokenize(" ")
     loaders = ['velocity']
     changelog = "${rootProject.ext.modrinth_changelog}"

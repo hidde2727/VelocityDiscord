@@ -14,6 +14,7 @@ public class Modal {
     
     private Discord discord;
     private StringProcessor processor;
+    private String translationKey;
     private StringProcessor.VariableMap variables = new StringProcessor.VariableMap();
     private Map<String, String> translations = null;
     private String modalID;
@@ -33,6 +34,7 @@ public class Modal {
         if(translations.isEmpty()) {
             Logs.warn("A modal with translation keys ['" + namespace + "', '" + key + "'] requested but no translations were not found");
         }
+        translationKey = "[" + namespace + ", " + key + "]";
         return this;
     }
     public Modal SetVariable(String key, String value) {
@@ -63,7 +65,7 @@ public class Modal {
         this.processor = discord.GetStringProcessor().AddVariables(variables, 50);
 
         String title = ProcessString("title");
-        if(title == null) title = "EMpty modal, no data was provided";
+        if(title == null) title = "Empty modal (translation key '" + translationKey + "'), no data was provided";
 
         net.dv8tion.jda.api.modals.Modal.Builder modal = net.dv8tion.jda.api.modals.Modal.create(modalID, title);
         for(Object item : items) {
@@ -88,7 +90,7 @@ public class Modal {
         try {
             replyCallback.replyModal(this.Build()).queue();
         } catch(Exception exc) {
-            Logs.warn("Failed to send a modal: " + exc.getMessage());
+            Logs.warn("Failed to send a modal (translation key '" + translationKey + "'): " + exc.getMessage());
         }
     }
 }

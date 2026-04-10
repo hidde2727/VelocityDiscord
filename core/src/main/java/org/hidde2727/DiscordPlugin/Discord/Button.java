@@ -2,6 +2,7 @@ package org.hidde2727.DiscordPlugin.Discord;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.hidde2727.DiscordPlugin.StringProcessor;
+import org.hidde2727.DiscordPlugin.Logs;
 
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
@@ -12,6 +13,7 @@ public class Button implements ActionRowItem {
     String id;
     String localizationKey;
     ButtonStyle style;
+    boolean disabled = false;
     Button(String id, String localizationKey, ButtonStyle style) {
         this.id = id;
         this.style = style;
@@ -33,6 +35,16 @@ public class Button implements ActionRowItem {
     public static Button Link(String url, String localizationKey) {
         return new Button(url, localizationKey, ButtonStyle.LINK);
     }
+    Button disabled() {
+        try {
+            Button button = (Button) this.clone();
+            button.disabled = true;
+            return button;
+        } catch(Exception exc) {
+            Logs.warn("Failed to clone a discord button");
+            return null;
+        }
+    }
 
     public String GetLabel(StringProcessor processor, Map<String, String> translations) {
         String label = translations.get("actions." + localizationKey + ".label");
@@ -43,6 +55,6 @@ public class Button implements ActionRowItem {
         String label = processor.GetString(translations.get("actions." + localizationKey + ".label"));
         Emoji emoji = processor.GetEmoji(translations.get("actions." + localizationKey + ".emoji"));
         if(label == null && emoji == null) label = "EMPTY_BUTTON";
-        return net.dv8tion.jda.api.components.buttons.Button.of(style, id, label, emoji);
+        return net.dv8tion.jda.api.components.buttons.Button.of(style, id, label, emoji).withDisabled(disabled);
     }
 }

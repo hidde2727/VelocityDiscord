@@ -35,6 +35,11 @@ public class Punishment {
             banning.config.enabled = false;
         }
 
+        if(config.punishments.size() > 25) {
+            Logs.error("The maximum amount of punishments is 25, this is due to a discord limitation of string selectors.");
+            banning.config.enabled = false;
+        }
+
         try {
             NeededUpVotes();
             NeededDownvote();

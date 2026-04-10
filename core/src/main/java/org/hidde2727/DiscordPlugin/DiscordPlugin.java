@@ -92,7 +92,9 @@ public class DiscordPlugin {
     }
     public void OnServerStop() {
         Logs.info("Stopping the discord plugin");
-        if(!disabled) onStop.OnServerStop();
+        if(!disabled) {
+            onStop.OnServerStop();
+        }
 
         if(discord != null) {
             discord.Shutdown();
