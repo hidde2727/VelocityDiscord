@@ -45,7 +45,7 @@ public class Request {
         discord.CreateEmbed()
                 .SetLanguageNamespace("whitelist" , "request")
                 .AddActionRow(new ActionRow(Button.Primary("whitelist-request-button", "button")))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("whitelist.request")
                 .SendInChannel(config.channel);
     }
     // 2. Someone pressed the button of 1, send modal to get their username

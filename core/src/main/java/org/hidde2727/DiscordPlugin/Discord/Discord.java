@@ -1,15 +1,19 @@
 package org.hidde2727.DiscordPlugin.Discord;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 import org.hidde2727.DiscordPlugin.Storage.Language;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,25 +21,31 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public class Discord {
     JDA jda;
     final StringProcessor stringProcessor;
     final Language languageConfig;
     public static class MessageID {
-        public MessageID(String channelId, long messageId) {
+        public MessageID() {}
+        public MessageID(String channelId, long messageId, String deleteKey) {
             this.channelId = channelId;
             this.messageId = messageId;
+            this.deleteKey = deleteKey;
         }
         public String channelId;
         public long messageId;
+        public String deleteKey;
     }
-    Map<Long, MessageID> toDelete = new HashMap<>();
+    final Map<String, MessageID> toDeleteOrDisable;
     String guildId;
 
-    public Discord(String botToken, String guildId, StringProcessor processor, Language languageConfig) throws Exception {
+    public Discord(String botToken, String guildId, StringProcessor processor, Language languageConfig, Map<String, MessageID> toDeleteOrDisable) throws Exception {
         this.languageConfig = languageConfig;
         this.stringProcessor = processor;
+        this.toDeleteOrDisable = toDeleteOrDisable;
         jda = JDABuilder.createDefault(botToken)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .setEnableShutdownHook(false)
@@ -48,12 +58,23 @@ public class Discord {
         Logs.info("Running in the '" + jda.getGuildById(guildId).getName() + "' guild");
     }
 
-    public void Shutdown() {
-        // Delete all the messages marked to be deleted:
-        for(MessageID messageId: toDelete.values()) {
-            try {
-                jda.getTextChannelById(messageId.channelId).deleteMessageById(messageId.messageId).complete();
-            } catch(Exception ignored) { }
+    public void Shutdown(boolean toDisable) {
+        // Disable all the messages marked to be disabled:
+        for(MessageID messageID : toDeleteOrDisable.values()) {
+            if(toDisable) {
+                Message message = GetMessage(messageID);
+                if(message == null) {
+                    // Message does not exist anymore
+                    toDeleteOrDisable.remove(messageID.deleteKey);
+                    continue;
+                }
+                DisableMessage(message);
+            } else {
+                try {
+                    jda.getTextChannelById(messageID.channelId).deleteMessageById(messageID.messageId).complete();
+                } catch(Exception ignored) { }
+                toDeleteOrDisable.remove(messageID.deleteKey);
+            }
         }
         // Stop JDA
         Logs.info("Shutting down JDA");
@@ -115,21 +136,32 @@ public class Discord {
     }
 
     public List<Member> GetUsersInChannel(String channelID) {
-        return jda.getTextChannelById(channelID).getMembers();
+        TextChannel channel = jda.getTextChannelById(channelID);
+        if(channel == null) {
+            Logs.warn("Failed to get text channel '" + channelID + "', maybe it was deleted?");
+            return new ArrayList<>();
+        }
+        return channel.getMembers();
     }
 
     public void DeleteMessageOnShutdown(MessageID messageID) {
-        toDelete.put(messageID.messageId, messageID);
+        toDeleteOrDisable.put(messageID.deleteKey, messageID);
     }
     public void KeepMessageOnShutdown(MessageID messageID) {
-        toDelete.remove(messageID.messageId);
+        toDeleteOrDisable.remove(messageID.deleteKey);
     }
 
     public Message GetMessage(MessageID messageID) {
-        return jda.getTextChannelById(messageID.channelId).retrieveMessageById(messageID.messageId).complete();
-    }
-    public Message GetMessage(String channelID, Long messageID) {
-        return jda.getTextChannelById(channelID).retrieveMessageById(messageID).complete();
+        TextChannel channel = jda.getTextChannelById(messageID.channelId);
+        if(channel == null) {
+            Logs.warn("Failed to get text channel '" + messageID.channelId + "', maybe it was deleted?");
+            return null;
+        }
+        try {
+            return channel.retrieveMessageById(messageID.messageId).complete();
+        } catch(Exception exc) {
+            return null;// Message does not exist
+        }
     }
 
     // Checks if the user has any of the roles in the guild from the config
@@ -173,5 +205,41 @@ public class Discord {
 
     public Modal CreateModal(String id) {
         return new Modal(this, id);
+    }
+
+    public void EnableMessage(Message message) {
+        List<MessageTopLevelComponentUnion> newComponents = new ArrayList<>();
+        boolean changes = false;
+        for(MessageTopLevelComponentUnion component : message.getComponents()) {
+            if(component.getType() == Component.Type.ACTION_ROW) {
+                if(component.asActionRow().isEnabled()) continue;
+                changes = true;
+                newComponents.add((MessageTopLevelComponentUnion) component.asActionRow().asEnabled());
+            }
+        }
+        if(!changes) return;
+        MessageEditData edit = MessageEditBuilder.fromMessage(message)
+                .setComponents(newComponents)
+                .setReplace(true)
+                .build();
+        message.editMessage(edit).queue();
+    }
+
+    public void DisableMessage(Message message) {
+        List<MessageTopLevelComponentUnion> newComponents = new ArrayList<>();
+        boolean changes = false;
+        for(MessageTopLevelComponentUnion component : message.getComponents()) {
+            if(component.getType() == Component.Type.ACTION_ROW) {
+                if(component.asActionRow().isDisabled()) continue;
+                changes = true;
+                newComponents.add((MessageTopLevelComponentUnion) component.asActionRow().asDisabled());
+            }
+        }
+        if(!changes) return;
+        MessageEditData edit = MessageEditBuilder.fromMessage(message)
+                .setComponents(newComponents)
+                .setReplace(true)
+                .build();
+        message.editMessage(edit).queue();
     }
 }

@@ -123,7 +123,7 @@ public class Voting {
                         Button.Primary("unban-vote-up", "accept"),
                         Button.Destructive("unban-vote-down", "deny")
                 ))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("unban." + request.byDiscordUUID)
                 .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
@@ -211,7 +211,7 @@ public class Voting {
                 .SetLanguageNamespace("unban", "votingAccepted")
                 .SetVariables(unban.GetVariables(request))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
     void OnDeny(DataStorage.UnbanRequest request) {
         Message toBeModified = discord.GetMessage(request.messageID);
@@ -219,6 +219,6 @@ public class Voting {
                 .SetLanguageNamespace("unban", "votingDenied")
                 .SetVariables(unban.GetVariables(request))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
 }

@@ -23,7 +23,7 @@ embeds:
       onJoin:
         title: "-------------[Connected]-------------"
         description: "**${PLAYER_NAME}** joined the server!"
-        imageUrl: "https://minotar.net/helm/${PLAYER_NAME}/240.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -31,7 +31,7 @@ embeds:
       onLeave:
         title: "-------------[Disconnected]-------------"
         description: "**${PLAYER_NAME}** left the server!"
-        imageUrl: "https://minotar.net/helm/${PLAYER_NAME}/240.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
@@ -146,7 +146,7 @@ embeds:
       votingDenied:
         title: "Whitelist request - Denied"
         description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was denied"
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
@@ -154,7 +154,7 @@ embeds:
       votingAccepted:
         title: "Whitelist request - Accepted"
         description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was accepted"
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -222,7 +222,7 @@ embeds:
       requestConfirm:
         title: "Do you want to ban this user?"
         description: "1. Do you want to request a ban of **${PLAYER_NAME}** with the following reason: '*${REASON}*'.\n2. Check if the skin below is from the account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         actions:
           confirm:
             label: "This is him"
@@ -279,7 +279,7 @@ embeds:
       punishmentDecided:
         title: "Ban request - Punishment"
         description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**"
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -293,7 +293,7 @@ embeds:
       reasonPicker:
         title: "Ban Request - Reason"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\". This reason was denied, what should the reason be?"
-        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -304,7 +304,7 @@ embeds:
       reasonFirstVote:
         title: "Ban request - Reason"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${REASON}\".\n Is this a good **reason**? \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -319,7 +319,7 @@ embeds:
       reasonVoting:
         title: "Ban request - Reason change"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\".\n\n <@${ADMIN_UUID}> suggests to change the reason to \"${REASON}\" \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request"
-        imageUrl: "https://minotar.net/avatar${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -334,7 +334,7 @@ embeds:
       reasonDecided:
         title: "Ban request - Accepted"
         description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**. This because \"${REASON}\""
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -463,7 +463,7 @@ embeds:
       votingDenied:
         title: "Unban request - denied"
         description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was denied"
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
@@ -471,7 +471,7 @@ embeds:
       votingAccepted:
         title: "Unban request - accepted"
         description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was accepted"
-        imageUrl: "https://minotar.net/avatar/${PLAYER_KEY}/100.png"
+        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"

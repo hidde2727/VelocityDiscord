@@ -50,7 +50,7 @@ events:
 
 
 # If enabled, will use the UUID registered at mojang for verification
-# !Will force the server into online mode!
+# !The server must be in online mode to use this!
 # You currently cannot change this setting after you have someone whitelisted, so choose carefully
 # If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 useUUID: true
@@ -59,7 +59,11 @@ useUUID: true
 # If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 connectAccounts: true
 
-# If to add the whitelist, ban and unban request message together in one single request message
+# If set to false, this plugin will delete all the interactable messages on shutdown, to then resend them on startup
+# If set to true, this plugin will disable all the interactable messages on shutdown, to then enable them again on startup (so no annoying ping when the server starts up)
+disableOnShutdown: true
+
+# Combine the whitelist, ban and unban request message in one single request message
 squashedRequest:
   enabled: false
   channel: "id..."

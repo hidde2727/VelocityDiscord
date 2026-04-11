@@ -63,7 +63,7 @@ public class Request {
         discord.CreateEmbed()
                 .SetLanguageNamespace("banning" , "request")
                 .AddActionRow(new ActionRow(Button.Destructive("ban-request-button", "button")))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("banning.request")
                 .SendInChannel(config.channel);
     }
     // 2. Someone pressed the button of 1, send modal to get the user they want to see punished

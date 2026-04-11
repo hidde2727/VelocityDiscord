@@ -32,6 +32,7 @@ public class Embed {
     private Consumer<MessageID> onSend = null;
     private boolean setTimestamp = false;
     private boolean deleteOnShutdown = false;
+    private String deleteUUID = null;
 
     Embed(Discord discord) {
         this.discord = discord;
@@ -66,8 +67,13 @@ public class Embed {
         setTimestamp = true;
         return this;
     }
-    public Embed DeleteOnShutdown() {
+    public Embed DeleteOnShutdown(String uuid) {
+        if(translations.isEmpty()) {
+            Logs.warn("Cannot call DeleteOrDisableOnShutdown on an embed before SetLanguageNamespace has been called");
+            return this;
+        }
         deleteOnShutdown = true;
+        deleteUUID = uuid;
         return this;
     }
     public Embed AddActionRow(ActionRow row) {
@@ -75,6 +81,9 @@ public class Embed {
         return this;
     }
     public Embed OnSend(Consumer<MessageID> onSend) {
+        if(!deleteOnShutdown) {
+            Logs.warn("Calling OnSend without DeleteOnShutdown won't have any result, to use OnSend you must also use DeleteOnShutdown");
+        }
         this.onSend = onSend;
         return this;
     }
@@ -106,8 +115,23 @@ public class Embed {
     public void SendInChannel(String channelId) {
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
+            // Check if we need to reenable the message:
+            if(discord.toDeleteOrDisable.containsKey(deleteUUID)) {
+                MessageID messageID = discord.toDeleteOrDisable.get(deleteUUID);
+                Message message = discord.GetMessage(messageID);
+                if(message != null) {
+                    // There is message that has been disabled:
+                    discord.EnableMessage(message);
+                    if(onSend != null) {
+                        onSend.accept(messageID);
+                    }
+                    return;
+                }
+                // Continue, the message does not exist anymore, resend it
+            }
+
             onSuccess = (message) -> {
-                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong(), deleteUUID);
                 discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
                     onSend.accept(messageID);
@@ -127,9 +151,24 @@ public class Embed {
     public void Send(IReplyCallback callback, boolean ephermal) {
         Consumer<InteractionHook> onSuccess = null;
         if(deleteOnShutdown && !ephermal) {
+            // Check if we need to reenable the message:
+            if(discord.toDeleteOrDisable.containsKey(deleteUUID)) {
+                MessageID messageID = discord.toDeleteOrDisable.get(deleteUUID);
+                Message message = discord.GetMessage(messageID);
+                if(message != null) {
+                    // There is message that has been disabled:
+                    discord.EnableMessage(message);
+                    if(onSend != null) {
+                        onSend.accept(messageID);
+                    }
+                    return;
+                }
+                // Continue, the message does not exist anymore, resend it
+            }
+
             onSuccess = (message) -> {
                 Interaction interaction = message.getInteraction();
-                MessageID messageID = new MessageID(interaction.getChannelId(), message.getIdLong());
+                MessageID messageID = new MessageID(interaction.getChannelId(), message.getIdLong(), deleteUUID);
                 discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
                     onSend.accept(messageID);
@@ -147,10 +186,14 @@ public class Embed {
         }
     }
     public void ModifyHook(InteractionHook hook) {
+        if(hook == null) {
+            Logs.warn("Failed to modify an embed (translation key: '" + translationKey + "'): cannot modify a message that does not exist");
+            return;
+        }
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
             onSuccess = (message) -> {
-                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong(), deleteUUID);
                 discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
                     onSend.accept(messageID);
@@ -165,14 +208,18 @@ public class Embed {
                     .build();
             hook.editOriginal(edit).queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
+            Logs.warn("Failed to modify an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
     public void Modify(Message message) {
+        if(message == null) {
+            Logs.warn("Failed to modify an embed (translation key: '" + translationKey + "'): cannot modify a message that does not exist");
+            return;
+        }
         Consumer<Message> onSuccess = null;
         if(deleteOnShutdown) {
             onSuccess = (messageParam) -> {
-                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong());
+                MessageID messageID = new MessageID(message.getChannelId(), message.getIdLong(), deleteUUID);
                 discord.DeleteMessageOnShutdown(messageID);
                 if(onSend != null) {
                     onSend.accept(messageID);
@@ -188,7 +235,7 @@ public class Embed {
             .build();
             message.editMessage(edit).queue(onSuccess);
         } catch(Exception exc) {
-            Logs.warn("Failed to send an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
+            Logs.warn("Failed to modify an embed (translation key: '" + translationKey + "'): " + exc.getMessage());
         }
     }
 }

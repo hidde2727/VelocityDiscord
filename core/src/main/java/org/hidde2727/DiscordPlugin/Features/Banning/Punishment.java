@@ -133,7 +133,7 @@ public class Punishment {
                                     (v) -> v, (v) -> v
                             ))
                     )))
-                    .DeleteOnShutdown()
+                    .DeleteOnShutdown("banning." + request.suggestedByDiscordUUID)
                     .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
@@ -145,7 +145,7 @@ public class Punishment {
                         Button.Primary("ban-punishment-vote-up", "accept"),
                         Button.Destructive("ban-punishment-vote-down", "deny")
                 ))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("banning." + request.suggestedByDiscordUUID)
                 .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
@@ -263,6 +263,6 @@ public class Punishment {
                 .SetLanguageNamespace("banning", "punishmentDecided")
                 .SetVariables(banning.GetVariables(request, false))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
 }

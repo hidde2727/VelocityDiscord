@@ -48,7 +48,7 @@ public class SquashedRequest {
         }
         if(buttons.isEmpty()) return;
         embed.AddActionRow(new ActionRow(buttons));
-        embed.DeleteOnShutdown();
+        embed.DeleteOnShutdown("squashedRequest.request");
         embed.SendInChannel(config.squashedRequest.channel);
     }
 }

@@ -61,7 +61,7 @@ public class Request {
         discord.CreateEmbed()
                 .SetLanguageNamespace("unban" , "request")
                 .AddActionRow(new ActionRow(Button.Secondary("unban-request-button", "button")))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("unban.request")
                 .SendInChannel(config.channel);
     }
     // 2. Someone pressed the button of 1, send modal to get the user they want to see punished

@@ -96,8 +96,7 @@ public class DataStorage {
         public String minecraftUUID;
         public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
         public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        // Runtime data:
-        public transient MessageID messageID;
+        public MessageID messageID;
     }
     public static class BanRequest {
         public BanRequest() {}
@@ -119,8 +118,7 @@ public class DataStorage {
         public int duration;
         public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
         public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        // Runtime data:
-        public transient MessageID messageID;
+        public MessageID messageID;
     }
     public static class UnbanRequest {
         public UnbanRequest() {}
@@ -138,8 +136,7 @@ public class DataStorage {
         public String key;
         public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
         public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        // Runtime data:
-        public transient MessageID messageID;
+        public MessageID messageID;
     }
     public static class Player {
         public static class Punishment {
@@ -213,4 +210,6 @@ public class DataStorage {
     public Map<String, UnbanRequest> unbanRequests = new HashMap<>();
     // Minecraft name/UUID, to registered player
     public Map<String, Player> players = new HashMap<>();
+
+    public Map<String, MessageID> disabledMessages = new HashMap<>();
 }

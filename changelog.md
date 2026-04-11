@@ -1,2 +1,2 @@
-- Made jar files have sensible names
-- Added fabric old version to keep support for minecraft versions below 26.1
+- Small improvements
+- Added disabling of messages instead of deletion when bot is offline

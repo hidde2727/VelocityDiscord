@@ -229,6 +229,7 @@ public class Config {
     public Events events = new Events();
     public boolean useUUID = true;
     public boolean connectAccounts = true;
+    public boolean disableOnShutdown = false;
     public SquashedRequest squashedRequest = new SquashedRequest();
     public Whitelist whitelist = new Whitelist();
     public Banning banning = new Banning();

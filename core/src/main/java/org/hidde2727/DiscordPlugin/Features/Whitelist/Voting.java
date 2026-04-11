@@ -123,7 +123,7 @@ public class Voting {
                         Button.Primary("whitelist-vote-up", "accept"),
                         Button.Destructive("whitelist-vote-down", "deny")
                 ))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("whitelist." + request.key)
                 .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
@@ -211,7 +211,7 @@ public class Voting {
                 .SetLanguageNamespace("whitelist", "votingAccepted")
                 .SetVariables(whitelist.GetVariables(request))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
     void OnDeny(DataStorage.WhitelistRequest request) {
         Message toBeModified = discord.GetMessage(request.messageID);
@@ -219,6 +219,6 @@ public class Voting {
                 .SetLanguageNamespace("whitelist", "votingDenied")
                 .SetVariables(whitelist.GetVariables(request))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
 }

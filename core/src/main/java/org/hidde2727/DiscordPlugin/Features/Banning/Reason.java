@@ -125,7 +125,7 @@ public class Reason {
                             Button.Primary("ban-reason-vote-up", "accept"),
                             Button.Destructive("ban-reason-vote-down", "deny")
                     ))
-                    .DeleteOnShutdown()
+                    .DeleteOnShutdown("banning." + request.suggestedByDiscordUUID)
                     .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
@@ -138,7 +138,7 @@ public class Reason {
                     .AddActionRow(new ActionRow(
                             Button.Primary("ban-reason-change", "change")
                     ))
-                    .DeleteOnShutdown()
+                    .DeleteOnShutdown("banning." + request.suggestedByDiscordUUID)
                     .OnSend((MessageID messageID) -> {
                         request.messageID = messageID;
                     });
@@ -150,7 +150,7 @@ public class Reason {
                         Button.Primary("ban-reason-vote-up", "accept"),
                         Button.Destructive("ban-reason-vote-down", "deny")
                 ))
-                .DeleteOnShutdown()
+                .DeleteOnShutdown("banning." + request.suggestedByDiscordUUID)
                 .OnSend((MessageID messageID) -> {
                     request.messageID = messageID;
                 });
@@ -290,6 +290,6 @@ public class Reason {
                 .SetLanguageNamespace("banning", "reasonDecided")
                 .SetVariables(banning.GetVariables(request, true))
                 .Modify(toBeModified);
-        discord.KeepMessageOnShutdown(new Discord.MessageID(toBeModified.getChannelId(), toBeModified.getIdLong()));
+        discord.KeepMessageOnShutdown(request.messageID);
     }
 }

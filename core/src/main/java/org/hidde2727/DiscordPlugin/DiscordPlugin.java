@@ -52,7 +52,7 @@ public class DiscordPlugin {
         stringProcessor = new StringProcessor(globalVariables);
 
         try {
-            discord = new Discord(config.botToken, config.guildId, stringProcessor, language);
+            discord = new Discord(config.botToken, config.guildId, stringProcessor, language, dataStorage.disabledMessages);
         } catch(Exception exc) {
             Logs.warn(exc.getMessage());
             disabled = true;
@@ -97,7 +97,7 @@ public class DiscordPlugin {
         }
 
         if(discord != null) {
-            discord.Shutdown();
+            discord.Shutdown(config.disableOnShutdown);
             discord = null;
         }
 
