@@ -1,2 +1,1 @@
-- Small improvements
-- Added disabling of messages instead of deletion when bot is offline
+- Fix shutdown logic (await disabling of messages)

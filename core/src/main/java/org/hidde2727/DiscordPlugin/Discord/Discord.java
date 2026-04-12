@@ -1,11 +1,15 @@
 package org.hidde2727.DiscordPlugin.Discord;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.StringProcessor;
 import org.hidde2727.DiscordPlugin.Storage.Language;
@@ -60,6 +64,7 @@ public class Discord {
 
     public void Shutdown(boolean toDisable) {
         // Disable all the messages marked to be disabled:
+        AtomicInteger remainingMessages = new AtomicInteger(0);
         for(MessageID messageID : toDeleteOrDisable.values()) {
             if(toDisable) {
                 Message message = GetMessage(messageID);
@@ -68,13 +73,28 @@ public class Discord {
                     toDeleteOrDisable.remove(messageID.deleteKey);
                     continue;
                 }
-                DisableMessage(message);
+                remainingMessages.incrementAndGet();
+                DisableMessage(message, (m) -> { remainingMessages.decrementAndGet(); });
             } else {
                 try {
-                    jda.getTextChannelById(messageID.channelId).deleteMessageById(messageID.messageId).complete();
+                    remainingMessages.incrementAndGet();
+                    jda.getTextChannelById(messageID.channelId).deleteMessageById(messageID.messageId)
+                            .onSuccess((m) -> {
+                                remainingMessages.decrementAndGet();
+                            })
+                            .queue();
                 } catch(Exception ignored) { }
                 toDeleteOrDisable.remove(messageID.deleteKey);
             }
+        }
+        Logs.info("Awaiting (maximum 3s) deletion/disabling of messages");
+        LocalTime endWait = LocalTime.now().plusSeconds(3);
+        while(remainingMessages.get() > 0) {
+            if(endWait.isBefore(LocalTime.now())) {
+                Logs.warn("Failed to delete/disable all messages in 3 seconds, shutting down (remaining messages '" + remainingMessages.get() + "')");
+                break;
+            }
+            Thread.yield();
         }
         // Stop JDA
         Logs.info("Shutting down JDA");
@@ -208,6 +228,9 @@ public class Discord {
     }
 
     public void EnableMessage(Message message) {
+        EnableMessage(message, null);
+    }
+    private void EnableMessage(Message message, Consumer<? super Message> onSuccess) {
         List<MessageTopLevelComponentUnion> newComponents = new ArrayList<>();
         boolean changes = false;
         for(MessageTopLevelComponentUnion component : message.getComponents()) {
@@ -217,15 +240,22 @@ public class Discord {
                 newComponents.add((MessageTopLevelComponentUnion) component.asActionRow().asEnabled());
             }
         }
-        if(!changes) return;
+        if(!changes) {
+            onSuccess.accept(message);
+            return;
+        }
         MessageEditData edit = MessageEditBuilder.fromMessage(message)
                 .setComponents(newComponents)
                 .setReplace(true)
                 .build();
-        message.editMessage(edit).queue();
+        MessageEditAction action = message.editMessage(edit);
+        if(onSuccess != null) action.onSuccess(onSuccess).queue();
+        else action.queue();
     }
-
     public void DisableMessage(Message message) {
+        DisableMessage(message, null);
+    }
+    private void DisableMessage(Message message, Consumer<? super Message> onSuccess) {
         List<MessageTopLevelComponentUnion> newComponents = new ArrayList<>();
         boolean changes = false;
         for(MessageTopLevelComponentUnion component : message.getComponents()) {
@@ -235,11 +265,16 @@ public class Discord {
                 newComponents.add((MessageTopLevelComponentUnion) component.asActionRow().asDisabled());
             }
         }
-        if(!changes) return;
+        if(!changes) {
+            onSuccess.accept(message);
+            return;
+        }
         MessageEditData edit = MessageEditBuilder.fromMessage(message)
                 .setComponents(newComponents)
                 .setReplace(true)
                 .build();
-        message.editMessage(edit).queue();
+        MessageEditAction action = message.editMessage(edit);
+        if(onSuccess != null) action.onSuccess(onSuccess).queue();
+        else action.queue();
     }
 }
