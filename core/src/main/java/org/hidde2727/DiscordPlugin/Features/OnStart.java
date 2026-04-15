@@ -28,7 +28,7 @@ public class OnStart {
 
     public void OnServerStart() {
         if(!config.enabled) return;
-        if(maintenance.InMaintenance()) return;
+        if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
 
         discord.CreateEmbed()
             .SetLanguageNamespace("events", "onStart")

@@ -38,22 +38,27 @@ public class Config {
     public static class Events {
         public static class OnStart {
             public boolean enabled = false;
+            public boolean disableDuringMaintenance = true;
             public String channel = "";
         }
         public static class OnStop {
             public boolean enabled = false;
+            public boolean disableDuringMaintenance = true;
             public String channel = "";
         }
         public static class OnJoin {
             public boolean enabled = false;
+            public boolean disableDuringMaintenance = true;
             public String channel = "";
         }
         public static class OnLeave {
             public boolean enabled = false;
+            public boolean disableDuringMaintenance = true;
             public String channel = "";
         }
         public static class OnMessage {
             public boolean enabled = false;
+            public boolean disableDuringMaintenance = true;
             public boolean minecraftToDiscord = true;
             public boolean discordToMinecraft = true;
             public Map<String, String> channels = new HashMap<>();

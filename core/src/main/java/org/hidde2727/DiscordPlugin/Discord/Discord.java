@@ -241,7 +241,7 @@ public class Discord {
             }
         }
         if(!changes) {
-            onSuccess.accept(message);
+            if(onSuccess != null) onSuccess.accept(message);
             return;
         }
         MessageEditData edit = MessageEditBuilder.fromMessage(message)
@@ -266,7 +266,7 @@ public class Discord {
             }
         }
         if(!changes) {
-            onSuccess.accept(message);
+            if(onSuccess != null) onSuccess.accept(message);
             return;
         }
         MessageEditData edit = MessageEditBuilder.fromMessage(message)

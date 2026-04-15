@@ -28,7 +28,7 @@ public class OnStop {
 
     public void OnServerStop() {
         if(!config.enabled) return;
-        if(maintenance.InMaintenance()) return;
+        if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
 
         discord.CreateEmbed()
             .SetLanguageNamespace("events", "onStop")

@@ -1,5 +1,6 @@
 package org.hidde2727.DiscordPlugin.Features;
 
+import org.hidde2727.DiscordPlugin.PlayerManager;
 import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.DiscordPlugin;
@@ -11,11 +12,13 @@ public class OnJoin {
     Config.Events.OnJoin config;
 
     DataStorage.Maintenance maintenance;
+    PlayerManager players;
 
     public OnJoin(DiscordPlugin plugin) {
         this.discord = plugin.discord;
         this.config = plugin.config.events.onJoin;
         this.maintenance = plugin.dataStorage.maintenance;
+        this.players = plugin.players;
 
         if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
             Logs.error("onJoin channel does not exist");
@@ -28,12 +31,13 @@ public class OnJoin {
     
     public void OnPlayerConnect(String playerName, String playerUUID) {
         if(!config.enabled) return;
-        if(maintenance.InMaintenance()) return;
+        if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
 
         discord.CreateEmbed()
             .SetLanguageNamespace("events", "onJoin")
             .SetVariable("PLAYER_NAME", playerName)
             .SetVariable("PLAYER_UUID", playerUUID)
+            .SetVariable("PLAYER_KEY", players.GetMinecraftKey(playerName, playerUUID))
             .SendInChannel(config.channel);
     }
 }

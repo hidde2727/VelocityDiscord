@@ -1,1 +1,2 @@
-- Fix shutdown logic (await disabling of messages)
+- Added option to keep events active during maintenance
+- Bugfix

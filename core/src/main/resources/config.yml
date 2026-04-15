@@ -12,27 +12,35 @@ events:
   # On server start message
   onStart:
     enabled: false
+    disableDuringMaintenance: true
     channel: "id..."
 
   # On server stop message
   onStop:
     enabled: false
+    disableDuringMaintenance: true
     channel: "id..."
 
   # On player join message
   onJoin:
     enabled: false
+    disableDuringMaintenance: true
     channel: "id..."
 
   # On player leave message
   onLeave:
     enabled: false
+    disableDuringMaintenance: true
     channel: "id..."
 
   # On discord/minecraft message forward it
   onMessage:
     enabled: false
+    disableDuringMaintenance: true
+
+    # Forward minecraft messages to discord
     minecraftToDiscord: true
+    # Forward discord messages to minecraft
     discordToMinecraft: true
 
     # Uncomment the one that applies to your server type:

@@ -25,6 +25,10 @@ public class OnMessage extends ListenerAdapter {
         this.plugin = plugin;
 
         if(!config.enabled) return;
+        if(config.channels.isEmpty()) {
+            Logs.error("The onMessage event is enabled but has no channels configured");
+            return;
+        }
         for(Entry<String, String> channel : config.channels.entrySet()) {
             if(!discord.DoesTextChannelExist(channel.getValue())) {
                 Logs.error("onMessage '" + channel.getKey() + "' channel does not exist");
@@ -39,7 +43,7 @@ public class OnMessage extends ListenerAdapter {
     public void OnPlayerMessage(String onServer, String playerName, String playerUUID, String message) {
         if(!config.enabled) return;
         if(!config.minecraftToDiscord) return;
-        if(maintenance.InMaintenance()) return;
+        if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
 
         discord.CreateEmbed()
             .SetLanguageNamespace("events", "onMessage")
@@ -54,7 +58,7 @@ public class OnMessage extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if(!config.enabled) return;
         if(!config.discordToMinecraft) return;
-        if(maintenance.InMaintenance()) return;
+        if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
         if(event.getAuthor().getId().equals(discord.GetSelfId())) return;// Make sure to not create an infinite loop
 
         // Find the channel to user:

@@ -121,7 +121,10 @@ public class DiscordPlugin {
         onMessage.OnPlayerMessage(onServer, playerName, playerUUID, message);
     }
     public boolean OnPlayerPreLogin(String playerName, String playerUUID) {
-        if(disabled) return false;
+        if(disabled) {
+            Logs.warn("Login attempt by '" + playerName + "' with uuid '" + playerUUID + "' was denied, because discordio is in an error state");
+            return false;
+        }
 
         if(!whitelist.OnPlayerPreLogin(playerName, playerUUID)) return false;
         if(!banning.OnPlayerPreLogin(playerName, playerUUID)) return false;
