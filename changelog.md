@@ -1,2 +1,1 @@
-- Added option to keep events active during maintenance
-- Bugfix
+- Periodic saving

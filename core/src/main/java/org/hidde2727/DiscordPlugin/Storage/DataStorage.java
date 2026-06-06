@@ -1,6 +1,8 @@
 package org.hidde2727.DiscordPlugin.Storage;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -212,4 +214,7 @@ public class DataStorage {
     public Map<String, Player> players = new HashMap<>();
 
     public Map<String, MessageID> disabledMessages = new HashMap<>();
+
+    public boolean isBackup = false;
+    public String storedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
 }

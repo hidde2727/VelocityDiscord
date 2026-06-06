@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Features.*;
@@ -20,7 +22,9 @@ import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.Language;
 
-public class DiscordPlugin {
+public class DiscordPlugin extends TimerTask {
+    private static final int AUTO_SAVE_INTERVAL = 300000; // Every 5 minutes
+
     public DiscordPlugin(Implementation implementation) {
         this.implementation = implementation;
         Logs.useForLogging = this;
@@ -41,6 +45,10 @@ public class DiscordPlugin {
             disabled = true;
             Logs.warn("Failed to load data storage file, disabling the plugin");
             return;
+        }
+        if(dataStorage.isBackup) {
+            Logs.warn("The data file loaded is marked as a backup, some data may have been lost since the previous time Discordio was run.");
+            Logs.warn("Last save: " + dataStorage.storedAt);
         }
         if(language == null) {
             disabled = true;
@@ -89,6 +97,8 @@ public class DiscordPlugin {
         discord.AddEventListener(unban);
         discord.AddEventListener(maintenance);
         discord.AddEventListener(infoCommand);
+
+        timer.schedule(this, 0, AUTO_SAVE_INTERVAL);
     }
     public void OnServerStop() {
         Logs.info("Stopping the discord plugin");
@@ -104,16 +114,7 @@ public class DiscordPlugin {
         if(disabled) return;
         disabled = true;
 
-        Path dataDirectory = implementation.GetDataDirectory();
-        File dataFile = dataDirectory.resolve("data.yml").toFile();
-        if(!dataFile.exists()) {
-            try {
-                dataFile.createNewFile();
-            } catch(Exception ignored) {
-                Logs.warn("Failed to create the data file");
-            }
-        }
-        dataStorage.Unload(dataDirectory.resolve("data.yml").toFile());
+        StoreToDisk(false);
     }
     public void OnPlayerMessage(String onServer, String playerName, String playerUUID, String message) {
         if(disabled) return;
@@ -147,6 +148,13 @@ public class DiscordPlugin {
         if(disabled) return;
 
         infoCommand.OnPlayerAdd();
+    }
+
+    /** Scheduled task runner (runs every couple of minutes): */
+    @Override
+    public void run() {
+        Logs.info("Auto saving!");
+        StoreToDisk(true);
     }
 
     private void CreateDirectoryIfNotExists(Path folder) {
@@ -192,6 +200,20 @@ public class DiscordPlugin {
         globalVariables.AddFunction("CURRENT_MONTH", () -> { return String.valueOf(LocalDateTime.now().getMonthValue()); });
         globalVariables.AddFunction("CURRENT_YEAR", () -> { return String.valueOf(LocalDateTime.now().getYear()); });
     }
+    private void StoreToDisk(boolean backup) {
+        Path dataDirectory = implementation.GetDataDirectory();
+        File dataFile = dataDirectory.resolve("data.yml").toFile();
+        if(!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+            } catch(Exception ignored) {
+                Logs.warn("Failed to create the data file");
+            }
+        }
+        dataStorage.isBackup = backup;
+        dataStorage.storedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
+        dataStorage.Unload(dataDirectory.resolve("data.yml").toFile());
+    }
 
     boolean disabled = false;
     public Config config = new Config();
@@ -214,4 +236,6 @@ public class DiscordPlugin {
     Unban unban;
     Maintenance maintenance;
     InfoCommand infoCommand;
+    // Scheduling:
+    Timer timer = new Timer();
 }
