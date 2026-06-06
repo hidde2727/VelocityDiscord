@@ -11,7 +11,7 @@
 
 
 ## Download
-Go to [modrinth.com](https://modrinth.com/plugin/discord-server) to download this mod
+Go to [modrinth.com](https://modrinth.com/plugin/discordio) to download this mod
 
 ## Setup
 See [discord.com/developers/docs/quick-start/getting-started](https://discord.com/developers/docs/quick-start/getting-started) for more information.
