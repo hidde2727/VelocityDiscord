@@ -5,62 +5,55 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 import org.hidde2727.DiscordPlugin.Features.*;
-import org.hidde2727.DiscordPlugin.Features.Banning.Banning;
-import org.hidde2727.DiscordPlugin.Features.Unban.Unban;
-import org.hidde2727.DiscordPlugin.Features.Whitelist.Whitelist;
-import org.hidde2727.DiscordPlugin.Implementation.Implementation;
+import org.hidde2727.DiscordPlugin.Models.Player;
 import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
 import org.hidde2727.DiscordPlugin.Storage.Language;
 
-public class DiscordPlugin extends TimerTask {
+public class DiscordPlugin {
     private static final int AUTO_SAVE_INTERVAL = 300000; // Every 5 minutes
 
     public DiscordPlugin(Implementation implementation) {
         this.implementation = implementation;
-        Logs.useForLogging = this;
+        Logs.useForLogging = implementation;
 
-        Path dataDirectory = implementation.GetDataDirectory();
+        Path dataDirectory = implementation.getDataDirectory();
 
         CreateDirectoryIfNotExists(dataDirectory);
         File configFile = dataDirectory.resolve("config.yml").toFile();
         CreateFileIfNotExists(configFile, "config.yml");
         File messageFile = dataDirectory.resolve("language.yml").toFile();
         CreateFileIfNotExists(messageFile, "language.yml");
+        File dataFile = dataDirectory.resolve("data.yml").toFile();
 
-        config = Config.Load(configFile);
-        language = Language.Load(messageFile);
-        dataStorage = DataStorage.Load(dataDirectory.resolve("data.yml").toFile());
+        Config.init(configFile);
 
-        if(dataStorage == null) {
+        if(!DataStorage.init(dataFile)) {
             disabled = true;
             Logs.warn("Failed to load data storage file, disabling the plugin");
             return;
         }
-        if(dataStorage.isBackup) {
+        if(DataStorage.getInstance().isBackup) {
             Logs.warn("The data file loaded is marked as a backup, some data may have been lost since the previous time Discordio was run.");
-            Logs.warn("Last save: " + dataStorage.storedAt);
+            Logs.warn("Last save: " + DataStorage.getInstance().storedAt);
         }
-        if(language == null) {
+        if(!Language.init(messageFile)) {
             disabled = true;
             Logs.warn("Failed to load language file, disabling the plugin");
             return;
         }
 
-        SetupVariableMap();
-        stringProcessor = new StringProcessor(globalVariables);
-
         try {
-            discord = new Discord(config.botToken, config.guildId, stringProcessor, language, dataStorage.disabledMessages);
+            Discord.init(Config.getInstance().botToken, Config.getInstance().guildId);
         } catch(Exception exc) {
             Logs.warn(exc.getMessage());
             disabled = true;
@@ -68,47 +61,40 @@ public class DiscordPlugin extends TimerTask {
         }
     }
 
-    public void OnServerStart() {
+    public void onServerStart() {
         if(disabled) return;
 
-        players = new PlayerManager(this);
-
         // Add all the features
-        this.onStart = new OnStart(this);
-        this.onStop = new OnStop(this);
-        this.onJoin = new OnJoin(this);
-        this.onLeave = new OnLeave(this);
-        this.onMessage = new OnMessage(this);
-        this.squashedRequest = new SquashedRequest(this);
-        this.whitelist = new Whitelist(this);
-        this.banning = new Banning(this);
-        this.unban = new Unban(this);
-        this.maintenance = new Maintenance(this);
-        this.infoCommand = new InfoCommand(this);
+        features.add(new OnJoin());
+        features.add(new OnLeave());
+        features.add(new OnMessage(implementation));
+        features.add(new OnStart());
+        features.add(new OnStop());
 
-        this.onStart.OnServerStart();
-        this.squashedRequest.OnServerStart();
-        discord.AddEventListener(onMessage);
-        this.whitelist.OnServerStart();
-        discord.AddEventListener(whitelist);
-        this.banning.OnServerStart();
-        discord.AddEventListener(banning);
-        this.unban.OnServerStart();
-        discord.AddEventListener(unban);
-        discord.AddEventListener(maintenance);
-        discord.AddEventListener(infoCommand);
-
-        timer.schedule(this, 0, AUTO_SAVE_INTERVAL);
-    }
-    public void OnServerStop() {
-        Logs.info("Stopping the discord plugin");
-        if(!disabled) {
-            onStop.OnServerStop();
+        for(Feature feature : features) {
+            feature.onServerStart();
         }
 
-        if(discord != null) {
-            discord.Shutdown(config.disableOnShutdown);
-            discord = null;
+        // Set up the auto save:
+        DiscordPlugin plugin = this;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Logs.info("Auto saving!");
+                plugin.StoreToDisk(true);
+            }
+        }, 0, AUTO_SAVE_INTERVAL);
+    }
+    public void onServerStop() {
+        Logs.info("Stopping the discord plugin");
+        if(!disabled) {
+            for(Feature feature : features) {
+                feature.onServerStop();
+            }
+        }
+
+        if(Discord.getInstance() != null) {
+            Discord.shutdown();
         }
 
         if(disabled) return;
@@ -116,45 +102,43 @@ public class DiscordPlugin extends TimerTask {
 
         StoreToDisk(false);
     }
-    public void OnPlayerMessage(String onServer, String playerName, String playerUUID, String message) {
+    public void onPlayerMessage(String onServer, String playerName, String playerUUID, String message) {
         if(disabled) return;
 
-        onMessage.OnPlayerMessage(onServer, playerName, playerUUID, message);
+        Player player = DataStorage.getInstance().getPlayer(playerName, playerUUID);
+        for(Feature feature : features) {
+            feature.onPlayerMessage(onServer, player, message);
+        }
     }
-    public boolean OnPlayerPreLogin(String playerName, String playerUUID) {
+    public boolean onPlayerPreLogin(String playerName, String playerUUID) {
         if(disabled) {
             Logs.warn("Login attempt by '" + playerName + "' with uuid '" + playerUUID + "' was denied, because discordio is in an error state");
             return false;
         }
 
-        if(!whitelist.OnPlayerPreLogin(playerName, playerUUID)) return false;
-        if(!banning.OnPlayerPreLogin(playerName, playerUUID)) return false;
-        if(!maintenance.OnPlayerPreLogin(playerName, playerUUID)) return false;
+        Player player = DataStorage.getInstance().getPlayer(playerName, playerUUID);
+        for(Feature feature : features) {
+            if(!feature.onPlayerPreLogin(player)) {
+                return false;
+            }
+        }
         return true;
     }
-    public void OnPlayerConnect(String playerName, String playerUUID) {
+    public void onPlayerConnect(String playerName, String playerUUID) {
         if(disabled) return;
 
-        onJoin.OnPlayerConnect(playerName, playerUUID);
+        Player player = DataStorage.getInstance().getPlayer(playerName, playerUUID);
+        for(Feature feature : features) {
+            feature.onPlayerConnect(player);
+        }
     }
-    public void OnPlayerDisconnect(String playerName, String playerUUID) {
+    public void onPlayerDisconnect(String playerName, String playerUUID) {
         if(disabled) return;
 
-        onLeave.OnPlayerDisconnect(playerName, playerUUID);
-    }
-
-    // Called by PlayerManager when a player is added
-    public void OnPlayerAdd() {
-        if(disabled) return;
-
-        infoCommand.OnPlayerAdd();
-    }
-
-    /** Scheduled task runner (runs every couple of minutes): */
-    @Override
-    public void run() {
-        Logs.info("Auto saving!");
-        StoreToDisk(true);
+        Player player = DataStorage.getInstance().getPlayer(playerName, playerUUID);
+        for(Feature feature : features) {
+            feature.onPlayerDisconnect(player);
+        }
     }
 
     private void CreateDirectoryIfNotExists(Path folder) {
@@ -188,20 +172,8 @@ public class DiscordPlugin extends TimerTask {
             return;
         }
     }
-    private void SetupVariableMap() {
-        globalVariables.AddFunction("CURRENT_DATE", () -> { return LocalDate.now().toString(); });
-        globalVariables.AddFunction("CURRENT_TIME", () -> { return LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
-        globalVariables.AddFunction("CURRENT_DATE_TIME", () -> { return LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
-        globalVariables.AddFunction("CURRENT_NANO_SECONDS", () -> { return String.valueOf(LocalDateTime.now().getNano()); });
-        globalVariables.AddFunction("CURRENT_SECOND", () -> { return String.valueOf(LocalDateTime.now().getSecond()); });
-        globalVariables.AddFunction("CURRENT_MINUTE", () -> { return String.valueOf(LocalDateTime.now().getMinute()); });
-        globalVariables.AddFunction("CURRENT_HOUR", () -> { return String.valueOf(LocalDateTime.now().getHour()); });
-        globalVariables.AddFunction("CURRENT_DAY", () -> { return String.valueOf(LocalDateTime.now().getDayOfMonth()); });
-        globalVariables.AddFunction("CURRENT_MONTH", () -> { return String.valueOf(LocalDateTime.now().getMonthValue()); });
-        globalVariables.AddFunction("CURRENT_YEAR", () -> { return String.valueOf(LocalDateTime.now().getYear()); });
-    }
-    private void StoreToDisk(boolean backup) {
-        Path dataDirectory = implementation.GetDataDirectory();
+    void StoreToDisk(boolean backup) {
+        Path dataDirectory = implementation.getDataDirectory();
         File dataFile = dataDirectory.resolve("data.yml").toFile();
         if(!dataFile.exists()) {
             try {
@@ -210,32 +182,14 @@ public class DiscordPlugin extends TimerTask {
                 Logs.warn("Failed to create the data file");
             }
         }
-        dataStorage.isBackup = backup;
-        dataStorage.storedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
-        dataStorage.Unload(dataDirectory.resolve("data.yml").toFile());
+        DataStorage.getInstance().isBackup = backup;
+        DataStorage.getInstance().storedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();
+        DataStorage.getInstance().storeToDisk(dataFile);
     }
 
     boolean disabled = false;
-    public Config config = new Config();
-    public Language language = new Language();
-    public DataStorage dataStorage = new DataStorage();
-    public PlayerManager players;
-    public Discord discord;
-    public StringProcessor stringProcessor;
-    public StringProcessor.VariableMap globalVariables = new StringProcessor.VariableMap();
     public Implementation implementation;
-    // Features:
-    OnStart onStart;
-    OnStop onStop;
-    OnJoin onJoin;
-    OnLeave onLeave;
-    OnMessage onMessage;
-    SquashedRequest squashedRequest;
-    Whitelist whitelist;
-    Banning banning;
-    Unban unban;
-    Maintenance maintenance;
-    InfoCommand infoCommand;
+    public List<Feature> features = new ArrayList<>();
     // Scheduling:
     Timer timer = new Timer();
 }

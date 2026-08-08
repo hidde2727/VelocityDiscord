@@ -1,13 +1,12 @@
 package org.hidde2727.DiscordPlugin.Storage;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Map;
 
 import org.hidde2727.DiscordPlugin.Logs;
-import org.hidde2727.DiscordPlugin.Discord.Discord.MessageID;
+import org.hidde2727.DiscordPlugin.Models.Player;
+import org.hidde2727.DiscordPlugin.Models.Punishment;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
@@ -19,16 +18,18 @@ import org.yaml.snakeyaml.representer.Representer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.hidde2727.DiscordPlugin.Storage.Config.Banning.PunishmentPicker.PunishmentType;
-import org.hidde2727.DiscordPlugin.Storage.DataStorage.Player.Punishment;
-
 public class DataStorage {
-    public static DataStorage Load(File dataFile) {
-        if(!dataFile.exists()) return new DataStorage();
+    private static DataStorage instance;
+    public static DataStorage getInstance() {
+        return instance;
+    }
+    public static boolean init(File dataFile) {
+        if(!dataFile.exists()) {
+            instance = new DataStorage();
+            return true;
+        }
 
         var loaderoptions = new LoaderOptions();
         TagInspector taginspector =
@@ -48,16 +49,16 @@ public class DataStorage {
         Yaml yaml = new Yaml(constructor, representer, options);
 
         try {
-            DataStorage storage = yaml.load(new FileInputStream(dataFile));
-            if(storage == null) return new DataStorage();
-            return storage;
+            instance = yaml.load(new FileInputStream(dataFile));
+            if(instance == null) instance = new DataStorage();
         } catch(Exception exc) {
             Logs.warn("Failed to parse the data storage");
             Logs.warn(exc.getMessage());
-            return null;
+            return false;
         }
+        return true;
     }
-    public void Unload(File dataFile) {
+    public void storeToDisk(File dataFile) {
         DumperOptions options = new DumperOptions();
         Representer representer = new Representer(options);
         // representer.getPropertyUtils().setSkipMissingProperties(true);
@@ -83,112 +84,71 @@ public class DataStorage {
         }
     }
 
+    public Player getPlayer(String playerKey) {
+        return players.get(playerKey);
+    }
+    public Player getPlayer(String playerName, String playerUUID) {
+        if(minecraftUUIDKey) return players.get(playerUUID);
+        else return players.get(playerName);
+    }
+
     
-    public static class WhitelistRequest {
-        public WhitelistRequest() {}
-        public WhitelistRequest(String discordUUID, String minecraftName, String minecraftUUID, String key) {
-            this.discordUUID = discordUUID;
-            this.minecraftName = minecraftName;
-            this.minecraftUUID = minecraftUUID;
-            this.key = key;
-        }
-        public String key;// Either the minecraftUsername or minecraftUUID depending on the config
-        public String discordUUID;
-        public String minecraftName;
-        public String minecraftUUID;
-        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public MessageID messageID;
-    }
-    public static class BanRequest {
-        public BanRequest() {}
-        public BanRequest(String discordUUID, String originalReason, Player player, String minecraftKey) {
-            this.suggestedByDiscordUUID = discordUUID;
-            this.originalReason = originalReason;
-            this.reason = originalReason;
-            this.player = player;
-            this.key = minecraftKey;
-        }
-        public String suggestedByDiscordUUID;
-        public String originalReason;
-        public Player player;
-        public String key;
-        public PunishmentType punishment = PunishmentType.Null;
-        public String adminDiscordUUID;
-        public String punishmentName;
-        public String reason;
-        public int duration;
-        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public MessageID messageID;
-    }
-    public static class UnbanRequest {
-        public UnbanRequest() {}
-        public UnbanRequest(String byDiscordUUID, String reason, Player player, String minecraftKey, Punishment forPunishment) {
-            this.byDiscordUUID = byDiscordUUID;
-            this.reason = reason;
-            this.player = player;
-            this.key = minecraftKey;
-            this.forPunishment = forPunishment;
-        }
-        public String byDiscordUUID;
-        public String reason;
-        public Player player;
-        public Punishment forPunishment;
-        public String key;
-        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
-        public MessageID messageID;
-    }
-    public static class Player {
-        public static class Punishment {
-            public Punishment() {}
-            public Punishment(PunishmentType punishment, String punishmentName, int duration, String reason) {
-                this.punishment = punishment;
-                this.punishmentName = punishmentName;
-                if(punishment == PunishmentType.Kick) {
-                    this.until = OffsetDateTime.MIN.plusSeconds(duration+1).minusNanos(1);
-                } else {
-                    this.until = OffsetDateTime.now().plusSeconds(duration);
-                }
-                this.reason = reason;
-            }
+//    public static class WhitelistRequest {
+//        public WhitelistRequest() {}
+//        public WhitelistRequest(String discordUUID, String minecraftName, String minecraftUUID, String key) {
+//            this.discordUUID = discordUUID;
+//            this.minecraftName = minecraftName;
+//            this.minecraftUUID = minecraftUUID;
+//            this.key = key;
+//        }
+//        public String key;// Either the minecraftUsername or minecraftUUID depending on the config
+//        public String discordUUID;
+//        public String minecraftName;
+//        public String minecraftUUID;
+//        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public MessageID messageID;
+//    }
+//    public static class BanRequest {
+//        public BanRequest() {}
+//        public BanRequest(String discordUUID, String originalReason, Player player, String minecraftKey) {
+//            this.suggestedByDiscordUUID = discordUUID;
+//            this.originalReason = originalReason;
+//            this.reason = originalReason;
+//            this.player = player;
+//            this.key = minecraftKey;
+//        }
+//        public String suggestedByDiscordUUID;
+//        public String originalReason;
+//        public Player player;
+//        public PunishmentType punishment = PunishmentType.Null;
+//        public String adminDiscordUUID;
+//        public String punishmentName;
+//        public String reason;
+//        public int duration;
+//        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public MessageID messageID;
+//    }
+//    public static class UnbanRequest {
+//        public UnbanRequest() {}
+//        public UnbanRequest(String byDiscordUUID, String reason, Player player, String minecraftKey, Punishment forPunishment) {
+//            this.byDiscordUUID = byDiscordUUID;
+//            this.reason = reason;
+//            this.player = player;
+//            this.key = minecraftKey;
+//            this.forPunishment = forPunishment;
+//        }
+//        public String byDiscordUUID;
+//        public String reason;
+//        public Player player;
+//        public Punishment forPunishment;
+//        public String key;
+//        public List<String> upVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public List<String> downVotes = new ArrayList<>();// Discord user ids of people that upvoted
+//        public MessageID messageID;
+//    }
 
-            // These are for snakeyaml parsing
-            public String snakeyamlGetUntil() { 
-                try {
-                    return until.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                } catch(Exception exc) {
-                    Logs.error("Failed to get the until property for snakeyaml because: " + exc.getMessage());
-                    return "ERROR_GETTING_ISO_OFFSET_TIME";
-                }
-            }
-            public void snakeyamlSetUntil(String str) {
-                try {
-                    until = OffsetDateTime.parse(str, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                } catch(Exception exc) {
-                    Logs.error("Failed to set until with snakeyaml because: " + exc.getMessage());
-                }
-            }
-
-            public PunishmentType punishment = PunishmentType.Null;
-            public String punishmentName = "";
-            public transient OffsetDateTime until = OffsetDateTime.now();
-            public String reason = "";
-        }
-        public Player() {}
-        public Player(String discordUUID, String minecraftName, String minecraftUUID) {
-            this.discordUUID = discordUUID;
-            this.minecraftName = minecraftName;
-            this.minecraftUUID = minecraftUUID;
-        }
-
-        public boolean whitelisted = false;
-        public List<Punishment> punishments = new ArrayList<>();
-        public String discordUUID;
-        public String minecraftName;
-        public String minecraftUUID;
-    }
     public static class Maintenance {
         public boolean configMaintenance = false;
         public boolean discordCommandMaintenance = false;
@@ -205,15 +165,13 @@ public class DataStorage {
 
     public Maintenance maintenance = new Maintenance();
 
-    public Map<String, WhitelistRequest> whitelistRequests = new HashMap<>();
-    public Map<String, BanRequest> banRequests = new HashMap<>();
-    // Requests where the punishment has been decided:
-    public Map<String, BanRequest> banRequestsDecided = new HashMap<>();
-    public Map<String, UnbanRequest> unbanRequests = new HashMap<>();
+//    public Map<String, WhitelistRequest> whitelistRequests = new HashMap<>();
+//    public Map<String, BanRequest> banRequests = new HashMap<>();
+//    // Requests where the punishment has been decided:
+//    public Map<String, BanRequest> banRequestsDecided = new HashMap<>();
+//    public Map<String, UnbanRequest> unbanRequests = new HashMap<>();
     // Minecraft name/UUID, to registered player
     public Map<String, Player> players = new HashMap<>();
-
-    public Map<String, MessageID> disabledMessages = new HashMap<>();
 
     public boolean isBackup = false;
     public String storedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).toString();

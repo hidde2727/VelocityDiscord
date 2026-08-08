@@ -16,7 +16,11 @@ import org.yaml.snakeyaml.inspector.TagInspector;
 import org.yaml.snakeyaml.representer.Representer;
 
 public class Config {
-    public static Config Load(File configFile) {
+    private static Config instance;
+    public static Config getInstance() {
+        return instance;
+    }
+    public static void init(File configFile) {
         var loaderoptions = new LoaderOptions();
         TagInspector taginspector =
                 tag -> tag.getClassName().equals(Config.class.getName());
@@ -27,11 +31,11 @@ public class Config {
         Yaml yaml = new Yaml(new Constructor(Config.class, loaderoptions), representer, options);
 
         try {
-            return yaml.load(new FileInputStream(configFile));
+            instance = yaml.load(new FileInputStream(configFile));
         } catch(Exception exc) {
             Logs.warn("Failed to parse the config file");
             Logs.warn(exc.getMessage());
-            return new Config();
+            instance = new Config();
         }
     }
 

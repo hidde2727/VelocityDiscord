@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.Component;
-import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.slf4j.Logger;
 
 import com.google.inject.Inject;
@@ -39,17 +38,17 @@ public class Velocity implements Implementation {
     }
 
     @Subscribe
-    public void OnServerStart(ProxyInitializeEvent event) {
-        plugin.OnServerStart();
+    public void onServerStart(ProxyInitializeEvent event) {
+        plugin.onServerStart();
     }
     @Subscribe
-    public void OnServerStop(ProxyShutdownEvent event) {
-        plugin.OnServerStop();
+    public void onServerStop(ProxyShutdownEvent event) {
+        plugin.onServerStop();
     }
     @Subscribe
-    public void OnPlayerMessage(PlayerChatEvent event) {
+    public void onPlayerMessage(PlayerChatEvent event) {
         Player player = event.getPlayer();
-        plugin.OnPlayerMessage(
+        plugin.onPlayerMessage(
             player.getCurrentServer().get().getServerInfo().getName(), 
             player.getUsername(), 
             UuidUtils.toUndashed(player.getUniqueId()),
@@ -57,8 +56,8 @@ public class Velocity implements Implementation {
         );
     }
     @Subscribe
-    public void OnPlayerPreLogin(PreLoginEvent event) {
-        boolean letThrough = plugin.OnPlayerPreLogin(
+    public void onPlayerPreLogin(PreLoginEvent event) {
+        boolean letThrough = plugin.onPlayerPreLogin(
                 event.getUsername(),
                 UuidUtils.toUndashed(event.getUniqueId())
         );
@@ -70,19 +69,19 @@ public class Velocity implements Implementation {
         // It is allowed, don't touch the event
     }
     @Subscribe
-    public void OnPlayerConnect(ServerConnectedEvent event) {
+    public void onPlayerConnect(ServerConnectedEvent event) {
         if(event.getPreviousServer().isPresent()) return;// Player is changing internal server, do nothing
 
         Player player = event.getPlayer();
-        plugin.OnPlayerConnect(
+        plugin.onPlayerConnect(
             player.getUsername(), 
             UuidUtils.toUndashed(player.getUniqueId())
         );
     }
     @Subscribe
-    public void OnPlayerDisconnect(DisconnectEvent event) {
+    public void onPlayerDisconnect(DisconnectEvent event) {
         Player player = event.getPlayer();
-        plugin.OnPlayerDisconnect(
+        plugin.onPlayerDisconnect(
             player.getUsername(), 
             UuidUtils.toUndashed(player.getUniqueId())
         );
@@ -101,13 +100,13 @@ public class Velocity implements Implementation {
     public void error(String message) {
         logger.error(message);
     }
-    public Path GetDataDirectory() {
+    public Path getDataDirectory() {
         return dataDirectory;
     }
-    public boolean IsOnlineMode() {
+    public boolean isOnlineMode() {
         return server.getConfiguration().isOnlineMode();
     }
-    public void SendMessage(String serverID, String message) {
+    public void sendMessage(String serverID, String message) {
         Optional<RegisteredServer> server = this.server.getServer(serverID);
         if(server.isEmpty()) {
             Logs.error("Cannot send a message to a server that is not register in the velocity.toml file");

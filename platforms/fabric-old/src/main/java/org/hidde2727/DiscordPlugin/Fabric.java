@@ -10,7 +10,6 @@ import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import org.hidde2727.DiscordPlugin.Implementation.Implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,23 +25,23 @@ public class Fabric implements ModInitializer, Implementation {
     public void onInitialize() {
         plugin = new DiscordPlugin(this);
 
-        ServerLifecycleEvents.SERVER_STARTED.register(this::OnServerStart);
-        ServerLifecycleEvents.SERVER_STOPPING.register(this::OnServerStop);
-        ServerPlayerEvents.JOIN.register(this::OnPlayerConnect);
-        ServerPlayerEvents.LEAVE.register(this::OnPlayerDisconnect);
-        ServerMessageEvents.CHAT_MESSAGE.register(this::OnPlayerMessage);
+        ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
+        ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
+        ServerPlayerEvents.JOIN.register(this::onPlayerConnect);
+        ServerPlayerEvents.LEAVE.register(this::onPlayerDisconnect);
+        ServerMessageEvents.CHAT_MESSAGE.register(this::onPlayerMessage);
     }
 
 
-    public void OnServerStart(MinecraftServer server) {
+    public void onServerStart(MinecraftServer server) {
         this.server = server;
-        plugin.OnServerStart();
+        plugin.onServerStart();
     }
-    public void OnServerStop(MinecraftServer server) {
-        plugin.OnServerStop();
+    public void onServerStop(MinecraftServer server) {
+        plugin.onServerStop();
     }
-    public void OnPlayerMessage(SignedMessage message, ServerPlayerEntity player, MessageType.Parameters params) {
-        plugin.OnPlayerMessage(
+    public void onPlayerMessage(SignedMessage message, ServerPlayerEntity player, MessageType.Parameters params) {
+        plugin.onPlayerMessage(
                 "fabric",
                 player.getStringifiedName(),
                 player.getUuidAsString(),
@@ -50,14 +49,14 @@ public class Fabric implements ModInitializer, Implementation {
         );
     }
     // OnPlayerPreLogin handled by FabricMixin
-    public void OnPlayerConnect(ServerPlayerEntity player) {
-        plugin.OnPlayerConnect(
+    public void onPlayerConnect(ServerPlayerEntity player) {
+        plugin.onPlayerConnect(
                 player.getStringifiedName(),
                 player.getUuidAsString()
         );
     }
-    public void OnPlayerDisconnect(ServerPlayerEntity player) {
-        plugin.OnPlayerDisconnect(
+    public void onPlayerDisconnect(ServerPlayerEntity player) {
+        plugin.onPlayerDisconnect(
                 player.getStringifiedName(),
                 player.getUuidAsString()
         );
@@ -75,13 +74,13 @@ public class Fabric implements ModInitializer, Implementation {
     public void error(String message) {
         LOGGER.error(message);
     }
-    public Path GetDataDirectory() {
+    public Path getDataDirectory() {
         return FabricLoader.getInstance().getConfigDir().resolve("discordio");
     }
-    public boolean IsOnlineMode() {
+    public boolean isOnlineMode() {
         return server.isOnlineMode();
     }
-    public void SendMessage(String serverID, String message) {
+    public void sendMessage(String serverID, String message) {
         if(!serverID.equals("fabric")) {
             Logs.error("Cannot send a message to a server other than the server with the id 'fabric' (check the onMessage event in your config.yml, it may only contain fabric)");
             return;

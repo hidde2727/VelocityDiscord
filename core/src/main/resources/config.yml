@@ -33,7 +33,7 @@ events:
     disableDuringMaintenance: true
     channel: "id..."
 
-  # On discord/minecraft message forward it
+  # Discord/minecraft message forwarding
   onMessage:
     enabled: false
     disableDuringMaintenance: true
@@ -45,11 +45,11 @@ events:
 
     # Uncomment the one that applies to your server type:
 
-    # For fabric:
+    # Uncomment for fabric:
     # channels:
     #   fabric: "id..."
 
-    # For velocity
+    # Uncomment for velocity
     # (The server names are the ones specified in the velocity.toml file you configured)
     # Do not share discord channels if you have discordToMinecraft enabled
     # channels:
@@ -67,8 +67,8 @@ useUUID: true
 # If you really want to change this, delete the data.yml file (this will remove all whitelisted players, they will need to be whitelisted again)
 connectAccounts: true
 
-# If set to false, this plugin will delete all the interactable messages on shutdown, to then resend them on startup
-# If set to true, this plugin will disable all the interactable messages on shutdown, to then enable them again on startup (so no annoying ping when the server starts up)
+# If set to FALSE, this plugin will DELETE all the interactable messages on shutdown, to then resend them on startup
+# If set to TRUE, this plugin will DISABLE all the interactable messages on shutdown, to then enable them again on startup (so no annoying ping when the server starts up)
 disableOnShutdown: true
 
 # Combine the whitelist, ban and unban request message in one single request message
@@ -86,24 +86,30 @@ whitelist:
   # Enable developer options to get the role ID easily from the discord server settings:
   whitelistedRoleID: ""
 
+  # Send a message when someone became whitelisted
   onAccept:
     enabled: true
     channel: "id..."
+  # Send a message when some was denied on the whitelist
   onDeny:
     enabled: true
     channel: "id..."
+  # Where the embed should be sent for players to request to be on the whitelist
   request:
     enabled: true
     channel: "id..."
     checkRoles: false
     allowedRoles: []
+  # What is the channel where admins can vote
   voting:
     # If disabled, a request will imply immediate whitelist
     enabled: true
     channel: "id.."
     checkRoles: false
     allowedRoles: []
+    # A percentage of the players that are allowed to vote, or a number (so 50%, 2, etc)
     acceptVotes: "50%"
+    # A percentage of the players that are allowed to vote, or a number (so 50%, 2, etc)
     denyVotes: "1"
 
 # Banning via discord

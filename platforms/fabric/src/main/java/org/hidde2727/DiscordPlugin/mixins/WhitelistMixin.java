@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class WhitelistMixin {
     @Inject(method="isWhiteListed", at=@At(value="HEAD"), cancellable=true)
     void isAllowed(NameAndId playerConfigEntry, CallbackInfoReturnable<Boolean> cir) {
-        boolean letThrough = Fabric.plugin.OnPlayerPreLogin(
+        boolean letThrough = Fabric.plugin.onPlayerPreLogin(
                 playerConfigEntry.name(),
                 playerConfigEntry.id().toString().replaceAll("-", "")
         );

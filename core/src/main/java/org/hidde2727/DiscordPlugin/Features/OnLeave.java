@@ -1,43 +1,35 @@
 package org.hidde2727.DiscordPlugin.Features;
 
-import org.hidde2727.DiscordPlugin.PlayerManager;
+import org.hidde2727.DiscordPlugin.Discord.EmbedInfo;
+import org.hidde2727.DiscordPlugin.Feature;
+import org.hidde2727.DiscordPlugin.Models.Player;
 import org.hidde2727.DiscordPlugin.Storage.Config;
 import org.hidde2727.DiscordPlugin.Storage.DataStorage;
-import org.hidde2727.DiscordPlugin.DiscordPlugin;
-import org.hidde2727.DiscordPlugin.Logs;
 import org.hidde2727.DiscordPlugin.Discord.Discord;
 
-public class OnLeave {
-    Discord discord;
-    Config.Events.OnLeave config;
+public class OnLeave extends Feature {
+    private final Config.Events.OnLeave config;
+    private final DataStorage.Maintenance maintenance;
 
-    DataStorage.Maintenance maintenance;
-    PlayerManager players;
+    public OnLeave() {
+        this.config = Config.getInstance().events.onLeave;
+        this.maintenance = DataStorage.getInstance().maintenance;
 
-    public OnLeave(DiscordPlugin plugin) {
-        this.discord = plugin.discord;
-        this.config = plugin.config.events.onLeave;
-        this.maintenance = plugin.dataStorage.maintenance;
-        this.players = plugin.players;
+        if(!config.enabled) return;
 
-        if(config.enabled && !discord.DoesTextChannelExist(config.channel)) {
-            Logs.error("onLeave channel does not exist");
-            this.config.enabled = false;
-        } else if(config.enabled && !discord.CanBotAccesTextChannel(config.channel)) {
-            Logs.error("The bot cannot access the onLeave channel");
-            this.config.enabled = false;
+        if(!Discord.getInstance().checkChannel(config.channel, "onJoin")) {
+            config.enabled = false;
         }
     }
-    
-    public void OnPlayerDisconnect(String playerName, String playerUUID) {
+
+    @Override
+    public void onPlayerDisconnect(Player player) {
         if(!config.enabled) return;
         if(config.disableDuringMaintenance && maintenance.InMaintenance()) return;
 
-        discord.CreateEmbed()
-            .SetLanguageNamespace("events", "onLeave")
-            .SetVariable("PLAYER_NAME", playerName)
-            .SetVariable("PLAYER_UUID", playerUUID)
-            .SetVariable("PLAYER_KEY", players.GetMinecraftKey(playerName, playerUUID))
-            .SendInChannel(config.channel);
+        (new EmbedInfo())
+            .setLanguage("events", "on-leave")
+            .setVariables(player)
+            .sendInChannel(config.channel);
     }
 }

@@ -1,6 +1,10 @@
 package org.hidde2727.DiscordPlugin;
 
 import java.awt.Color;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -8,36 +12,23 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 public class StringProcessor implements Cloneable {
     private SortedMap<Integer, VariableMap> variables = new TreeMap<>();
 
-    public static class VariableMap {
-        private final Map<String, Object> variables = new HashMap<>();
-        public interface VariableFunction {
-            public String getReplacement();
-        }
-
-        public void Add(String key, String value) {
-            variables.put(key, value);
-        }
-        public void AddFunction(String key, VariableFunction value) {
-            variables.put(key, value);
-        }
-
-        public boolean Contains(String key) {
-            return variables.containsKey(key);
-        }
-
-        public String Get(String key) {
-            Object value = variables.get(key);
-            if(value instanceof VariableFunction) {
-                return ((VariableFunction)value).getReplacement();
-            } else {
-                return (String) value;
-            }
-        }
-    }
-
-
     public StringProcessor(VariableMap variables) {
         this.variables.put(100, variables);
+    }
+
+    public static StringProcessor getDefault() {
+        VariableMap map = new VariableMap();
+        map.addFunction("CURRENT_DATE", () -> { return LocalDate.now().toString(); });
+        map.addFunction("CURRENT_TIME", () -> { return LocalTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
+        map.addFunction("CURRENT_DATE_TIME", () -> { return LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString(); });
+        map.addFunction("CURRENT_NANO_SECONDS", () -> { return String.valueOf(LocalDateTime.now().getNano()); });
+        map.addFunction("CURRENT_SECOND", () -> { return String.valueOf(LocalDateTime.now().getSecond()); });
+        map.addFunction("CURRENT_MINUTE", () -> { return String.valueOf(LocalDateTime.now().getMinute()); });
+        map.addFunction("CURRENT_HOUR", () -> { return String.valueOf(LocalDateTime.now().getHour()); });
+        map.addFunction("CURRENT_DAY", () -> { return String.valueOf(LocalDateTime.now().getDayOfMonth()); });
+        map.addFunction("CURRENT_MONTH", () -> { return String.valueOf(LocalDateTime.now().getMonthValue()); });
+        map.addFunction("CURRENT_YEAR", () -> { return String.valueOf(LocalDateTime.now().getYear()); });
+        return new StringProcessor(map);
     }
 
     /**
@@ -47,7 +38,7 @@ public class StringProcessor implements Cloneable {
      * @param priority 
      * @return Copy with variables added
      */
-    public StringProcessor AddVariables(VariableMap variables, int priority) {
+    public StringProcessor addVariables(VariableMap variables, int priority) {
         try {
             StringProcessor ret = (StringProcessor) this.clone();
             while(ret.variables.containsKey(priority)) {
@@ -61,15 +52,15 @@ public class StringProcessor implements Cloneable {
     }
 
     /**
-     * Returns the correct variable
+     * Returns the variable associated with the key.
      * 
      * @param key
      * @return
      */
-    public String GetVariable(String key) {
+    public String getVariable(String key) {
         for (VariableMap variableMap : variables.values()) {
-            if(variableMap.Contains(key)) {
-                return variableMap.Get(key);
+            if(variableMap.contains(key)) {
+                return variableMap.get(key);
             }
         }
         return null;
@@ -82,7 +73,7 @@ public class StringProcessor implements Cloneable {
      * @param str The string to process
      * @return The string with all the ${variableKey} subsituted
      */
-    public String ProcessVariables(String str) {
+    public String processVariables(String str) {
         if(str == null) return null;
         String ret = "";
         int currentOffset = 0;
@@ -94,8 +85,9 @@ public class StringProcessor implements Cloneable {
             int endIdx = str.indexOf("}", replacementIdx);
             if(endIdx == -1) break;
             String variableKey = str.substring(replacementIdx+2, endIdx);
-            String replacement = GetVariable(variableKey);
+            String replacement = getVariable(variableKey);
             if(replacement == null) {
+                Logs.warn("Found an occurrence of '${" + variableKey + "}' but could not find this variable");
                 ret += str.substring(currentOffset, endIdx+1);
                 currentOffset = endIdx+1;
                 continue;
@@ -108,18 +100,17 @@ public class StringProcessor implements Cloneable {
         return ret;
     }
 
-    public String GetString(String str) {
-        return ProcessVariables(str);
+    public String getString(String str) {
+        return processVariables(str);
     }
 
-    public Color GetColor(String str) {
-        String colString = GetString(str);
+    public Color getColor(String str) {
+        String colString = getString(str);
         if(colString == null) return null;
         String colStringNoWhitespace = colString.replaceAll("\\s+","");
         try {
             // First try the colors constants
-            Color color = (Color)Color.class.getField(colStringNoWhitespace).get(null);
-            return color;
+            return (Color)Color.class.getField(colStringNoWhitespace).get(null);
         } catch(Exception ignored) { }
         try {
             int firstComma = colStringNoWhitespace.indexOf(',');
@@ -148,8 +139,8 @@ public class StringProcessor implements Cloneable {
         return null;
     }
 
-    public Emoji GetEmoji(String str) {
-        String unprocessed = GetString(str);
+    public Emoji getEmoji(String str) {
+        String unprocessed = getString(str);
         try {
             return Emoji.fromFormatted(unprocessed);
         } catch(Exception ignored) {}

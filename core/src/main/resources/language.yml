@@ -6,32 +6,32 @@ embeds:
   #
   events:
     embeds:
-      onStart:
+      on-start:
         title: "-------------[Online]-------------"
         description: ":green_circle: **Proxy** is online!"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      onStop:
+      on-stop:
         title: "-------------[Offline]-------------"
         description: ":no_entry: **Proxy** is offline!"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      onJoin:
+      on-join:
         title: "-------------[Connected]-------------"
         description: "**${PLAYER_NAME}** joined the server!"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      onLeave:
+      on-leave:
         title: "-------------[Disconnected]-------------"
         description: "**${PLAYER_NAME}** left the server!"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/240.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
@@ -46,7 +46,7 @@ embeds:
   # *************************************************************************
   #
 
-  squashedRequest:
+  squashed-request:
     embeds:
       request:
         title: "Do you want to request something?"
@@ -73,7 +73,7 @@ embeds:
   #
   whitelist:
     embeds:
-      alreadyWhitelisted:
+      already-whitelisted:
         title: "Sorry, you already made a whitelist request."
         description: "You are either already whitelisted, or you made a request previously that is being approved. Please wait patiently"
         footer:
@@ -91,16 +91,16 @@ embeds:
             emoji: "U+2705"
         color: "BLUE"
 
-      notAllowed:
+      not-allowed:
         title: "You are not allowed to request to be whitelisted (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      requestConfirm:
+      request-confirm:
         title: "Is this you?"
         description: "Check if the skin below is from your account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_NAME}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_NAME}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -112,18 +112,18 @@ embeds:
             emoji: "U+26D4"
         color: "BLUE"
 
-      notFound:
+      not-found:
         title: "Your player was not found"
         description: "Your player was not found at the Mojang servers"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      requestCanceled:
+      request-canceled:
         title: "Request was canceled"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      requestConfirmed:
+      request-confirmed:
         title: "Your request will be reviewed by the admins"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -131,7 +131,7 @@ embeds:
       voting:
         title: "Whitelist request"
         description: "The discord user <@${DISCORD_UUID}> would like to have his minecraft account **${PLAYER_NAME}** to be whitelisted.\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -143,40 +143,40 @@ embeds:
             emoji: "U+26D4"
         color: "GREEN"
 
-      votingDenied:
+      voting-denied:
         title: "Whitelist request - Denied"
         description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was denied"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      votingAccepted:
+      voting-accepted:
         title: "Whitelist request - Accepted"
         description: "The request from the user <@${DISCORD_UUID}> to have **${PLAYER_NAME}** be whitelisted was accepted"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      votingNotAllowed:
+      voting-not-allowed:
         title: "You are not allowed to vote (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      publicDenied:
+      public-denied:
         title: "Whitelisted denied"
         description: "**${PLAYER_NAME}** did not get whitelisted\n(Requested by <@${DISCORD_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      publicAccepted:
+      public-accepted:
         title: "Whitelist accepted"
         description: "**${PLAYER_NAME}** got whitelisted\n(Requested by <@${DISCORD_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -199,30 +199,30 @@ embeds:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      alreadyRequested:
+      already-requested:
         title: "Sorry, you already made a ban request."
         description: "You made a ban request previously that is being approved. Please wait patiently"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "BLUE"
 
-      playerNotFound:
+      player-not-found:
         title: "That discord user is not registered"
         description: "The discord user does not have a minecraft account linked. The request is ignored"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "BLUE"
 
-      requestNotAllowed:
+      request-not-allowed:
         title: "You are not allowed to request a ban (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      requestConfirm:
+      request-confirm:
         title: "Do you want to ban this user?"
         description: "1. Do you want to request a ban of **${PLAYER_NAME}** with the following reason: '*${REASON}*'.\n2. Check if the skin below is from the account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         actions:
           confirm:
             label: "This is him"
@@ -234,26 +234,26 @@ embeds:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      requestNotFound:
+      request-not-found:
         title: "The user was not found"
         description: "There was no account found associated with the discord user"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      requestCanceled:
+      request-canceled:
         title: "Request was canceled"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      requestConfirmed:
+      request-confirmed:
         title: "Your request will be reviewed by the admins"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      punishmentPicker:
+      punishment-picker:
         title: "Ban request - Punishment"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\""
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -261,10 +261,10 @@ embeds:
             label: "Punishment"
         color: "ORANGE"
 
-      punishmentVoting:
+      punishment-voting:
         title: "Ban request - Punishment"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to be banned because:\n\"${REASON}\".\n <@${ADMIN_UUID}> suggests **${PUNISHMENT}** \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -276,24 +276,24 @@ embeds:
             emoji: "U+26D4"
         color: "ORANGE"
 
-      punishmentDecided:
+      punishment-voting-allowed:
         title: "Ban request - Punishment"
         description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      punishmentVotingNotAllowed:
+      punishment-voting-not-allowed:
         title: "You are not allowed to vote (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      reasonPicker:
+      reason-picker:
         title: "Ban Request - Reason"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\". This reason was denied, what should the reason be?"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -301,10 +301,10 @@ embeds:
             label: "Change reason"
         color: "ORANGE"
 
-      reasonFirstVote:
+      reason-first-vote:
         title: "Ban request - Reason"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${REASON}\".\n Is this a good **reason**? \n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -316,10 +316,10 @@ embeds:
             emoji: "U+26D4"
         color: "ORANGE"
 
-      reasonVoting:
+      reason-voting:
         title: "Ban request - Reason change"
         description: "The discord user <@${REQUESTER_UUID}> would like to have the minecraft account **${PLAYER_NAME}** to receive a ${PUNISHMENT} because:\n\"${ORIGINAL_REASON}\".\n\n <@${ADMIN_UUID}> suggests to change the reason to \"${REASON}\" \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. (${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -331,32 +331,32 @@ embeds:
             emoji: "U+26D4"
         color: "ORANGE"
 
-      reasonDecided:
+      reason-decided:
         title: "Ban request - Accepted"
         description: "**${PLAYER_NAME}** will get the following punishment: **${PUNISHMENT}**. This because \"${REASON}\""
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      reasonVotingNotAllowed:
+      reason-voting-not-allowed:
         title: "You are not allowed to vote (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      publicDenied:
+      public-denied:
         title: "Punishment denied"
         description: "**${PLAYER_NAME}** did not get a punishment\n(Requested by <@${REQUESTER_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      publicAccepted:
+      public-accepted:
         title: "Punishment accepted"
         description: "**${PLAYER_NAME}** got a *${PUNISHMENT}* because '*${REASON}*'\n(Requested by <@${REQUESTER_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
@@ -368,21 +368,21 @@ embeds:
   #
   unban:
     embeds:
-      alreadyRequested:
+      already-requested:
         title: "Sorry, you already made a unban request."
         description: "You made a ban request previously that is being approved. Please wait patiently"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "BLUE"
 
-      notBanned:
+      not-banned:
         title: "You are not banned."
         description: "You are not banned, so you cannot request an unban. (poor you)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "BLUE"
 
-      playerNotFound:
+      player-not-found:
         title: "You are not yet registered as a minecraft player"
         description: "Please first get yourself whitelisted before you try to get unbanned. The request is ignored"
         footer:
@@ -400,19 +400,19 @@ embeds:
             emoji: "U+2705"
         color: "YELLOW"
 
-      notAllowed:
+      not-allowed:
         title: "You are not allowed to request to be unbanned (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      noUnbanPunishment:
+      no-unban-punishment:
         title: "You are not allowed to request to be unbanned (you have a punishment disallowing you to be unbanned)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      requestPlayerPicker:
+      request-player-picker:
         title: "Pick for who you want to request an unban"
         description: "Use the select attached to pick a player:"
         actions:
@@ -420,10 +420,10 @@ embeds:
             label: "Minecraft account"
         color: "BLUE"
 
-      requestConfirm:
+      request-confirm:
         title: "Do you want to unban the following player?"
         description: "1. Do you want to request a removal of **${PUNISHMENT_NAME}** for **${PLAYER_NAME}** with the following reason: '*${REASON}*'.\n2. Check if the skin below is from the account **${PLAYER_NAME}**"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -435,12 +435,12 @@ embeds:
             emoji: "U+26D4"
         color: "BLUE"
 
-      requestCanceled:
+      request-canceled:
         title: "Request was canceled"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
 
-      requestConfirmed:
+      request-confirmed:
         title: "Your request will be reviewed by the admins"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
@@ -448,7 +448,7 @@ embeds:
       voting:
         title: "Unban request"
         description: "The discord user <@${REQUESTER_UUID}> would like to have his punishment **${PUNISHMENT_NAME}** removed from his minecraft account **${PLAYER_NAME}**.\n He has given the following reason:\n *${REASON}* \n\n**${ACCEPT_VOTES}** votes are in favor, **${DENY_VOTES}** votes are against. \n(${MIN_ACCEPT_VOTES} votes are needed to accept and ${MIN_DENY_VOTES} votes are needed to deny the request)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         actions:
@@ -460,40 +460,40 @@ embeds:
             emoji: "U+26D4"
         color: "YELLOW"
 
-      votingDenied:
+      voting-denied:
         title: "Unban request - denied"
         description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was denied"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      votingAccepted:
+      voting-accepted:
         title: "Unban request - accepted"
         description: "The request from the user <@${REQUESTER_UUID}> to have his punishment **${PUNISHMENT_NAME}** removed from **${PLAYER_NAME}** was accepted"
-        imageUrl: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/helm/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      votingNotAllowed:
+      voting-not-allowed:
         title: "You are not allowed to vote (you do not have the correct discord role)"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      publicDenied:
+      public-denied:
         title: "Unban denied"
         description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* wasn't removed. \n(Requested by <@${REQUESTER_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "RED"
 
-      publicAccepted:
+      public-accepted:
         title: "Unban accepted"
         description: "**${PLAYER_NAME}'s** punishment *${PUNISHMENT_NAME}* was removed.\n(Requested by <@${REQUESTER_UUID}>)"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
@@ -506,24 +506,24 @@ embeds:
 
   maintenance:
     embeds:
-      onStart:
+      on-start:
         title: "------------[Maintenance]------------"
         description: "Sorry, the server is in maintenance mode, you cannot join right now"
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "YELLOW"
 
-      onStop:
+      on-stop:
         title: "------------[Maintenance]------------"
         description: "The server is back online, the maintenance has ended."
         footer:
           message: "${CURRENT_DATE} ${CURRENT_TIME}"
         color: "GREEN"
 
-      notAllowed:
+      not-allowed:
         title: "Sorry, you are not allowed to use this command"
 
-      wrongChannel:
+      wrong-channel:
         title: "Sorry, you cannot use this command in this channel"
 
       incomplete:
@@ -541,17 +541,17 @@ embeds:
 
   infoCommand:
     embeds:
-      notAllowed:
+      not-allowed:
         title: "Sorry, you are not allowed to use this command"
 
-      wrongChannel:
+      wrong-channel:
         title: "Sorry, you cannot use this command in this channel"
 
       incomplete:
         title: "Please specify a user, the command args are imcomplete"
         color: "RED"
 
-      notRegistered:
+      not-registered:
         title: "That discord user isn't registered in the server"
         description: "<@${DISCORD_UUID}> doesn't have a minecraft account whitelisted"
         color: "BLUE"
@@ -559,7 +559,7 @@ embeds:
       command:
         title: "*${PLAYER_NAME}*"
         description: "${PLAYER_NAME}, registered by <@${DISCORD_UUID}>.\n This player has the following punishments:\n"
-        imageUrl: "https://minotar.net/body/${PLAYER_KEY}/100.png"
+        image-url: "https://minotar.net/body/${PLAYER_KEY}/100.png"
         # Extra is used to add a line to the description for every punishment:
         extra: "- *${PUNISHMENT_NAME}* until *${PUNISHMENT_UNTIL}*\n"
         color: "BLUE"
@@ -620,7 +620,7 @@ commands:
     name: "maintenance"
     description: "A command to start or stop the maintenance mode"
     options:
-      startStop:
+      start-stop:
         name: "start-stop"
         description: "Either start or stop the maintenance mode"
         options: ["start", "stop"]
@@ -628,15 +628,15 @@ commands:
     name: "player-info"
     description: "A command to display a players info"
     options:
-      subcommandMinecraft:
+      subcommand-minecraft:
         name: "minecraft"
         description: "Get the info of a minecraft player"
-      subcommandDiscord:
+      subcommand-discord:
         name: "discord"
         description: "Get the info of a discord user"
-      minecraftUser:
+      minecraft-user:
         name: "minecraft-user"
         description: "The minecraft user you want the info of"
-      discordUser:
+      discord-user:
         name: "discord-user"
         description: "The discord user you want the info of"
